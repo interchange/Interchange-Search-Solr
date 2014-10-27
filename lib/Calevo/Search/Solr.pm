@@ -93,7 +93,6 @@ sub _build_solr_object {
     my $self = shift;
     return WebService::Solr->new($self->solr_url);
 }
-                    
 
 =head1 METHODS
 
@@ -119,14 +118,34 @@ has _num_found => (is => 'rw');
 
 sub full_search {
     my $self = shift;
-    my $start = int($self->start) || 0;
-    my $rows  = int($self->rows ) || 10;
     my $res = $self->solr_object->search($self->_search_query,
-                                         { start => $start,
-                                           rows => $rows });
+                                         { start => $self->_start_row,
+                                           rows => $self->_rows });
     $self->_num_found($res->content->{response}->{numFound} || 0);
     return $res->docs;
 }
+
+sub _start_row {
+    my $self = shift;
+    return $self->_convert_to_int($self->start) || 0;
+}
+
+sub _rows {
+    my $self = shift;
+    return $self->_convert_to_int($self->rows) || 10;
+}
+
+sub _convert_to_int {
+    my ($self, $maybe_num) = @_;
+    return 0 unless $maybe_num;
+    if ($maybe_num =~ m/([1-9][0-9]*)/) {
+        return $1;
+    }
+    else {
+        return 0;
+    }
+}
+
 
 sub num_found {
     my $self = shift;
@@ -144,7 +163,7 @@ sub skus_found {
 
 sub has_more {
     my $self = shift;
-    if ($self->num_found > ($self->start + $self->rows)) {
+    if ($self->num_found > ($self->_start_row + $self->_rows)) {
         return 1;
     }
     else {

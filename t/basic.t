@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Calevo::Search::Solr;
-use Test::More tests => 10;
+use Test::More tests => 12;
 use Data::Dumper;
 
 my $solr = Calevo::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
@@ -39,3 +39,7 @@ $solr->start($solr->num_found);
 $solr->full_search;
 ok (!$solr->has_more, "No more products starting at " .  $solr->start);
 
+$solr->start('pippo');
+$solr->rows('ciccia');
+ok $solr->num_found, "Found results with messed up start/rows";
+ok $solr->has_more, "And has more";
