@@ -105,7 +105,17 @@ Return the Solr documents from the given search.
 
 Returns just a plain list of skus.
 
+=head2 num_found
+
+Return the number of items found
+
+=head2 has_more
+
+Return true if there are more pages
+
 =cut
+
+has _num_found => (is => 'rw');
 
 sub full_search {
     my $self = shift;
@@ -114,7 +124,13 @@ sub full_search {
     my $res = $self->solr_object->search($self->_search_query,
                                          { start => $start,
                                            rows => $rows });
+    $self->_num_found($res->content->{response}->{numFound} || 0);
     return $res->docs;
+}
+
+sub num_found {
+    my $self = shift;
+    return $self->_num_found;
 }
 
 sub skus_found {
@@ -125,6 +141,17 @@ sub skus_found {
     }
     return @skus;
 }
+
+sub has_more {
+    my $self = shift;
+    if ($self->num_found > ($self->start + $self->rows)) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
 
 sub _search_query {
     my $self = shift;
