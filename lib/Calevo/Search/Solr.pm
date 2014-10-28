@@ -61,6 +61,7 @@ has solr_url => (is => 'ro',
 
 has search_fields => (is => 'ro',
                       default => sub { return [qw/sku
+                                                  title
                                                   comment_en comment_fr
                                                   comment_nl comment_de
                                                   comment_se comment_es
@@ -177,6 +178,37 @@ sub _search_query {
     my $q = $self->search;
     $q =~ s/ /* AND */g;
 	return join( ' OR ', map( "$_:(*$q*)", @{$self->search_fields}) );
+}
+
+
+=head2 maintainer_update($mode)
+
+Perform a maintainer update and return a hashref with the response
+returned by C<generic_solr_request>
+
+=cut
+
+sub maintainer_update {
+    my ($self, $mode) = @_;
+    die "Missing argument" unless $mode;
+    my @query;
+    if ($mode eq 'clear') {
+        my %params = (
+                      'stream.body' => '<delete><query>*:*</query></delete>',
+                      commit        => 'true',
+                     );
+        @query = ('update', \%params);
+    }
+    elsif ($mode eq 'full') {
+        @query = ('dataimport', { command => 'full-import' });
+    }
+    elsif ($mode eq 'delta') {
+        @query = ('dataimport', { command => 'delta-import' });
+    }
+    else {
+        die "Unrecognized mode $mode!";
+    }
+    return $self->solr_object->generic_solr_request(@query);
 }
 
 

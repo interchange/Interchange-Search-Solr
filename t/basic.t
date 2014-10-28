@@ -13,7 +13,7 @@ ok($solr, "Object created");
 ok($solr->solr_object, "Internal Solr instance ok");
 $solr->start(3);
 $solr->rows(6);
-$solr->search("shirt");
+$solr->search("boot");
 
 diag $solr->_search_query;
 
