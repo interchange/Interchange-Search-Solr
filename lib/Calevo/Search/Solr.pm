@@ -183,8 +183,8 @@ sub _search_query {
 
 =head2 maintainer_update($mode)
 
-Perform a maintainer update and return a hashref with the response
-returned by C<generic_solr_request>
+Perform a maintainer update and return a L<WebService::Solr::Response>
+object.
 
 =cut
 
