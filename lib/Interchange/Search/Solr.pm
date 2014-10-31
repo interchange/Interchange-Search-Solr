@@ -69,6 +69,21 @@ Defaults to
 
 Start of pagination. Read-write.
 
+=head2 page
+
+Current page. Read-write.
+
+=head2 filters
+
+An hashref with the filters. E.g.
+
+ {
+  suchbegriffe => [qw/xxxxx yyyy/],
+  manufacturer => [qw/pikeur/],
+ }
+
+The keys of the hashref, to have any effect, must be one of the facets.
+
 =head2 search
 
 Search string. Read-write.
@@ -122,6 +137,11 @@ has rows => (is => 'rw',
 
 has start => (is => 'rw',
               default => sub { 0 });
+
+has page => (is => 'rw',
+             default => sub { 1 });
+
+has filters => (is => 'rw');
 
 has response => (is => 'rwp');
 
@@ -294,6 +314,125 @@ sub maintainer_update {
         die "Unrecognized mode $mode!";
     }
     return $self->solr_object->generic_solr_request(@query);
+}
+
+
+=head2 reset_object
+
+Reset the leftovers of a possible previous search.
+
+=head2 search_from_url($url)
+
+Parse the url provided and do the search.
+
+=cut
+
+sub reset_object {
+    my $self = shift;
+    $self->start(0);
+    $self->page(1);
+    $self->_set_response(undef);
+    $self->_set_search_string(undef);
+    $self->filters(undef);
+}
+
+sub search_from_url {
+    my ($self, $url) = @_;
+    $self->reset_object;
+    $self->_parse_url($url);
+    $self->_set_start_from_page;
+}
+
+sub _parse_url {
+    my ($self, $url) = @_;
+    my @fragments = grep { $_ } split('/', $url);
+
+    # nothing to do if there are no fragments
+    return unless @fragments;
+
+    # the first keyword we need is the optional "words"
+    if ($fragments[0] eq 'words') {
+        # just discards and check if we have something
+        shift @fragments;
+        return unless @fragments;
+    }
+
+    # the page is the last fragment, so check that
+    if (@fragments > 1) {
+        my $page = $#fragments;
+        if ($fragments[$page - 1] eq 'page') {
+            $page = pop @fragments;
+            # and remove the page
+            pop @fragments;
+            # but assert it is a number, 1 otherwise
+            if ($page =~ s/^([1-9][0-9]*)$/)/) {
+                $self->page($1);
+            }
+            else {
+                $self->page(1);
+            }
+        }
+    }
+    return unless @fragments;
+    # then we lookup until the first keyword
+    my @keywords = @{ $self->facets };
+    my ($current_filter, @terms, %filters);
+    while (@fragments) {
+
+        my $chunk = shift (@fragments);
+
+        if (grep { $_ eq $chunk } @keywords) {
+            # chunk is actually a keyword. Set the flag, prepare the
+            # array and move on.
+            $current_filter = $chunk;
+            $filters{$current_filter} = [];
+            next;
+        }
+
+        # are we inside a filter?
+        if ($current_filter) {
+            push @{ $filters{$current_filter} }, $chunk;
+        }
+        # if not, it's a term
+        else {
+            push @terms, $chunk;
+        }
+    }
+    $self->_set_search_terms(\@terms);
+    $self->filters(\%filters);
+    return unless @fragments;
+}
+
+sub _set_start_from_page {
+    my $self = shift;
+    # unclear if the trailing +1 is needed
+    $self->start($self->rows * ($self->page - 1)  + 1);
+}
+
+
+=head2 current_search_to_url
+
+Return the url for the current search.
+
+=cut
+
+sub current_search_to_url {
+    my ($self) = @_;
+    my @fragments;
+    if (my @terms = @{$self->search_terms}) {
+        push @fragments, 'words', @terms;
+    }
+    if (my $filters = $self->filters) {
+        foreach my $facet (@{ $self->facets }) {
+            if (my $terms = $filters->{$facet}) {
+                push @fragments, $facet, @$terms;
+            }
+        }
+    }
+    if ($self->page > 1) {
+        push @fragments, page => $self->page;
+    }
+    return join ('/', @fragments);
 }
 
 
