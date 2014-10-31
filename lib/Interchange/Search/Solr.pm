@@ -84,10 +84,6 @@ An hashref with the filters. E.g.
 
 The keys of the hashref, to have any effect, must be one of the facets.
 
-=head2 search
-
-Search string. Read-write.
-
 =head2 response
 
 Read-only accessor to the response object of the current search.
@@ -166,9 +162,11 @@ sub _build_solr_object {
 
 =head1 METHODS
 
-=head2 full_search
+=head2 search($string)
 
-Return the Solr documents from the given search.
+Run a search and return a L<WebService::Solr::Response> object. After
+calling this method you can inspect the response using the following
+methods:
 
 =head2 skus_found
 
@@ -185,16 +183,64 @@ Return true if there are more pages
 =cut
 
 sub search {
-    my ($self, $query) = @_;
-    my $q = $self->_search_query($query);
-    my $params = { start => $self->_start_row,
-                   rows => $self->_rows };
-    if (my $facet_field = $self->facets) {
-        $params->{facet} = 'true';
-        $params->{'facet.field'} = $facet_field;
-        $params->{'facet.mincount'} = 1;
+    my ($self, $string) = @_;
+    # here we just split the terms, set C<search_terms>, and call
+    # _do_search.
+    my @terms;
+    if ($string) {
+        @terms = grep { $_ } split(/\s+/, $string);
     }
-    my $res = $self->solr_object->search($q, $params);
+    $self->_set_search_terms(\@terms);
+    return $self->_do_search;
+}
+
+sub _do_search {
+    my $self = shift;
+
+    my @terms = @{ $self->search_terms };
+    my $query;
+    if (@terms) {
+        my @queries;
+        foreach my $field (@{ $self->search_fields }) {
+            push @queries, { $field => [ -and =>  @terms ] };
+        }
+        $query = WebService::Solr::Query->new(\@queries);
+    }
+    else {
+        # catch all
+        $query = WebService::Solr::Query->new( { '*' => \'*' } );
+    }
+    # save the debug info
+    $self->_set_search_string($query->stringify);
+
+    # set start and rows
+    my %params = (
+                  start => $self->_start_row,
+                  rows => $self->_rows
+                 );
+
+
+    if (my $facet_field = $self->facets) {
+        $params{facet} = 'true';
+        $params{'facet.field'} = $facet_field;
+        $params{'facet.mincount'} = 1;
+
+        # see if we have filters set
+        if (my $filters = $self->filters) {
+            my @fq;
+            foreach my $facet (@{ $self->facets }) {
+                if (my $condition = $filters->{$facet}) {
+                    push @fq,
+                      WebService::Solr::Query->new({ $facet => $condition });
+                }
+            }
+            if (@fq) {
+                $params{fq} = \@fq;
+            }
+        }
+    }
+
+    my $res = $self->solr_object->search($query, \%params);
     $self->_set_response($res);
     return $res;
 }
@@ -264,28 +310,6 @@ sub has_more {
 }
 
 
-sub _search_query {
-    my ($self, $string) = @_;
-    my (@terms, $query);
-    if ($string && $string =~ /\w/) {
-        @terms = grep { $_ } split(/ /, $string);
-        # search all fields
-        my @queries;
-        foreach my $field (@{ $self->search_fields }) {
-            push @queries, { $field => [ -and =>  @terms ] };
-        }
-        $query = WebService::Solr::Query->new(\@queries);
-    }
-    else {
-        # search everything
-        $query = WebService::Solr::Query->new( { '*' => \'*' } );
-    }
-    $self->_set_search_string($query->stringify);
-    $self->_set_search_terms(\@terms);
-    return $query;
-}
-
-
 =head2 maintainer_update($mode)
 
 Perform a maintainer update and return a L<WebService::Solr::Response>
@@ -341,6 +365,8 @@ sub search_from_url {
     $self->reset_object;
     $self->_parse_url($url);
     $self->_set_start_from_page;
+    # at this point, all the parameters are set after the url parsing
+    return $self->_do_search;
 }
 
 sub _parse_url {
