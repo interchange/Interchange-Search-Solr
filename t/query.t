@@ -5,7 +5,7 @@ use warnings;
 
 use Interchange::Search::Solr;
 use Data::Dumper;
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 
@@ -35,3 +35,11 @@ ok (scalar(@skus), "Found some results with /boot");
 
 $solr->search('boot');
 is_deeply([ $solr->skus_found] , \@skus, "same result");
+
+is ($solr->url_builder([qw/pinco pallino/],
+                       {
+                        manufacturer => [qw/pikeur/]
+                       }, 3),
+    'words/pinco/pallino/manufacturer/pikeur/page/3',
+    "Url builder works");
+

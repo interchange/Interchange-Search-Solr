@@ -444,22 +444,37 @@ Return the url for the current search.
 
 sub current_search_to_url {
     my ($self) = @_;
+    return $self->url_builder($self->search_terms,
+                              $self->filters,
+                              $self->page);
+}
+
+=head2 url_builder(\@terms, \%filters, $page);
+
+Build a query url with the parameter passed
+
+=cut
+
+
+sub url_builder {
+    my ($self, $terms, $filters, $page) = @_;
     my @fragments;
-    if (my @terms = @{$self->search_terms}) {
-        push @fragments, 'words', @terms;
+    if (@$terms) {
+        push @fragments, 'words', @$terms;
     }
-    if (my $filters = $self->filters) {
+    if (%$filters) {
         foreach my $facet (@{ $self->facets }) {
             if (my $terms = $filters->{$facet}) {
                 push @fragments, $facet, @$terms;
             }
         }
     }
-    if ($self->page > 1) {
-        push @fragments, page => $self->page;
+    if ($page > 1) {
+        push @fragments, page => $page;
     }
     return join ('/', @fragments);
 }
+
 
 
 =head1 AUTHOR

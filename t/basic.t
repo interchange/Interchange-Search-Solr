@@ -52,3 +52,4 @@ $solr->rows('ciccia');
 $solr->search("boot");
 ok $solr->num_found, "Found results with messed up start/rows";
 ok $solr->has_more, "And has more";
+
