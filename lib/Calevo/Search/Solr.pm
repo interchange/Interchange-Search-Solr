@@ -35,24 +35,46 @@ Perhaps a little code snippet.
 
 =head1 ACCESSORS
 
-Save for C<solr_url>, they are all read-write accessors, so you can
-reuse the object across requests.
-
 =head2 solr_url
 
-Url of the solr instance
+Url of the solr instance. Read-only.
 
 =head2 rows
 
-Number of results to return
+Number of results to return. Read-write (so you can reuse the object).
+
+=head2 search_fields
+
+An arrayref with the indexed fields to search. Defaults to:
+
+  [qw/sku
+      title
+      comment_en comment_fr
+      comment_nl comment_de
+      comment_se comment_es
+      description_en description_fr
+      description_nl description_de
+      description_se description_es/] 
+
+
+=head facetes
+
+A string or an arrayref with the fields which will generate a facet.
+Defaults to
+
+ [qw/suchbegriffe manufacturer/]
 
 =head2 start
 
-Start of pagination
+Start of pagination. Read-write.
 
 =head2 search
 
-Search string
+Search string. Read-write.
+
+=head2 response
+
+Read-only accessor to the response object of the current search.
 
 =cut
 
@@ -70,6 +92,10 @@ has search_fields => (is => 'ro',
                                                   description_se description_es/] },
                       isa => sub { die unless ref($_[0]) eq 'ARRAY' });
 
+has facets => (is => 'ro',
+               default => sub {
+                   return [qw/suchbegriffe manufacturer/];
+               });
 
 has rows => (is => 'rw',
              default => sub { 10 });
@@ -77,8 +103,9 @@ has rows => (is => 'rw',
 has start => (is => 'rw',
               default => sub { 0 });
 
-has search => (is => 'rw');
+has response => (is => 'rwp');
 
+has search_string => (is => 'rwp');
 
 =head1 INTERNAL ACCESSORS
 
@@ -115,15 +142,20 @@ Return true if there are more pages
 
 =cut
 
-has _num_found => (is => 'rw');
-
-sub full_search {
-    my $self = shift;
-    my $res = $self->solr_object->search($self->_search_query,
-                                         { start => $self->_start_row,
-                                           rows => $self->_rows });
-    $self->_num_found($res->content->{response}->{numFound} || 0);
-    return $res->docs;
+sub search {
+    my ($self, $query) = @_;
+    my $q = $self->_search_query($query);
+    $self->_set_search_string($q);
+    my $params = { start => $self->_start_row,
+                   rows => $self->_rows };
+    if (my $facet_field = $self->facets) {
+        $params->{facet} = 'true';
+        $params->{'facet.field'} = $facet_field;
+        $params->{'facet.mincount'} = 1;
+    }
+    my $res = $self->solr_object->search($q, $params);
+    $self->_set_response($res);
+    return $res;
 }
 
 sub _start_row {
@@ -147,16 +179,15 @@ sub _convert_to_int {
     }
 }
 
-
 sub num_found {
     my $self = shift;
-    return $self->_num_found;
+    return $self->response->content->{response}->{numFound} || 0;
 }
 
 sub skus_found {
     my $self = shift;
     my @skus;
-    foreach my $item ($self->full_search) {
+    foreach my $item ($self->response->docs) {
         push @skus, $item->value_for('sku');
     }
     return @skus;
@@ -174,10 +205,14 @@ sub has_more {
 
 
 sub _search_query {
-    my $self = shift;
-    my $q = $self->search;
-    $q =~ s/ /* AND */g;
-	return join( ' OR ', map( "$_:(*$q*)", @{$self->search_fields}) );
+    my ($self, $q) = @_;
+    if ($q && $q =~ /\w/) {
+        $q =~ s/ /* AND */g;
+        return join( ' OR ', map( "$_:(*$q*)", @{$self->search_fields}) );
+    }
+    else {
+        return '*';
+    }
 }
 
 

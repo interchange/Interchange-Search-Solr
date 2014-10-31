@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Calevo::Search::Solr;
-use Test::More tests => 12;
+use Test::More tests => 15;
 use Data::Dumper;
 
 my $solr = Calevo::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
@@ -13,15 +13,19 @@ ok($solr, "Object created");
 ok($solr->solr_object, "Internal Solr instance ok");
 $solr->start(3);
 $solr->rows(6);
+$solr->search();
+is ($solr->search_string, '*', "Empty search returns everything");
+ok ($solr->num_found, "Found results") and diag "Results: " . $solr->num_found;
 $solr->search("boot");
 
-diag $solr->_search_query;
+like $solr->search_string, qr/\*boot\*/, "Search string interpolated";
 
-my @results = $solr->full_search;
+my @results = $solr->response->docs;
 # print Dumper(\@results);
 is (scalar(@results), 6, "Found 6 results");
 
 $solr->rows(3);
+$solr->search("boot");
 my @skus = $solr->skus_found;
 
 diag $solr->num_found;
@@ -36,10 +40,11 @@ foreach my $sku (@skus) {
 }
 
 $solr->start($solr->num_found);
-$solr->full_search;
+$solr->search("boot");
 ok (!$solr->has_more, "No more products starting at " .  $solr->start);
 
 $solr->start('pippo');
 $solr->rows('ciccia');
+$solr->search("boot");
 ok $solr->num_found, "Found results with messed up start/rows";
 ok $solr->has_more, "And has more";
