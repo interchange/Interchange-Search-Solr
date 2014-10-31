@@ -10,18 +10,21 @@ use Data::Dumper;
 
 my $solr = Calevo::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 
-ok($solr);
+ok($solr, "instance ok");
+$solr->search('boot');
+my $facets = $solr->facets_found;
+is (ref($facets), 'HASH', "Facets is an hahsref");
+# diag Dumper($facets);
+$solr->facets('manufacturer');
+$solr->search('shirt');
+is ($solr->facets, 'manufacturer', "facets can be changed");
+$facets = $solr->facets_found;
+is (ref($facets), 'HASH', "and is an hashref again");
+# diag Dumper($facets);
 
-my $params = {
-              facet => 'true',
-              'facet.field' => [qw/suchbegriffe manufacturer/],
-              'facet.mincount'=> 1,
-              q => '*',
-             };
-
-my $res = $solr->solr_object->generic_solr_request(select => $params);
-
-print Dumper($res->facets_found);
+# pick the first
+my $filter = $facets->{manufacturer}->[0]->{name};
+ok($filter, "Filter is $filter");
 
 
 

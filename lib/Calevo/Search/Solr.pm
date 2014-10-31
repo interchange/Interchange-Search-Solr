@@ -13,11 +13,11 @@ Calevo::Search::Solr -- Solr query encapsulation
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 =head1 SYNOPSIS
@@ -57,7 +57,7 @@ An arrayref with the indexed fields to search. Defaults to:
       description_se description_es/] 
 
 
-=head facetes
+=head facets
 
 A string or an arrayref with the fields which will generate a facet.
 Defaults to
@@ -92,7 +92,7 @@ has search_fields => (is => 'ro',
                                                   description_se description_es/] },
                       isa => sub { die unless ref($_[0]) eq 'ARRAY' });
 
-has facets => (is => 'ro',
+has facets => (is => 'rw',
                default => sub {
                    return [qw/suchbegriffe manufacturer/];
                });
@@ -192,6 +192,25 @@ sub skus_found {
     }
     return @skus;
 }
+
+sub facets_found {
+    my $self = shift;
+    my $res = $self->response;
+    my $facets = $res->content->{facet_counts}->{facet_fields};
+    my %out;
+    foreach my $field (keys %$facets) {
+        my @list = @{$facets->{$field}};
+        my @items;
+        while (@list > 1) {
+            my $name = shift @list;
+            my $count = shift @list;
+            push @items, { name => $name, count => $count };
+        }
+        $out{$field} = \@items;
+    }
+    return \%out;
+}
+
 
 sub has_more {
     my $self = shift;
