@@ -475,7 +475,12 @@ sub url_builder {
     return join ('/', @fragments);
 }
 
-
+sub _build_facet_url {
+    my ($self, $field, $name) = @_;
+    # get the current filters
+    
+    
+}
 
 =head1 AUTHOR
 

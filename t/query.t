@@ -5,7 +5,7 @@ use warnings;
 
 use Interchange::Search::Solr;
 use Data::Dumper;
-use Test::More tests => 9;
+use Test::More tests => 12;
 
 my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 
@@ -43,3 +43,8 @@ is ($solr->url_builder([qw/pinco pallino/],
     'words/pinco/pallino/manufacturer/pikeur/page/3',
     "Url builder works");
 
+$solr->search_from_url('/shirt/manufacturer/pikeur');
+my @skus = $solr->skus_found;
+ok (scalar(@skus), "Found some results with /shirt/manufacturer/pikeur");
+ok ($solr->has_more, "And has more");
+ok ($solr->num_found, "Total: " . $solr->num_found);
