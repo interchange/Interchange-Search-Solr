@@ -58,7 +58,7 @@ An arrayref with the indexed fields to search. Defaults to:
       description_se description_es/] 
 
 
-=head facets
+=head2 facets
 
 A string or an arrayref with the fields which will generate a facet.
 Defaults to
@@ -76,6 +76,25 @@ Search string. Read-write.
 =head2 response
 
 Read-only accessor to the response object of the current search.
+
+=head2 facets_found
+
+After a search, the structure with the facets can be retrieved with
+this accessor, with this structure:
+
+ {
+   field => [ { name => "name", count => 11 }, { name => "name", count => 9 }, ...  ],
+   field2 => [ { name => "name", count => 7 }, { name => "name", count => 6 }, ...  ],
+   ...
+ }
+
+=head2 search_string
+
+Debug only. The search string produced by the query.
+
+=head2 search_terms
+
+The terms used for the current search.
 
 =cut
 
@@ -107,6 +126,8 @@ has start => (is => 'rw',
 has response => (is => 'rwp');
 
 has search_string => (is => 'rwp');
+
+has search_terms  => (is => 'rwp');
 
 =head1 INTERNAL ACCESSORS
 
@@ -146,7 +167,6 @@ Return true if there are more pages
 sub search {
     my ($self, $query) = @_;
     my $q = $self->_search_query($query);
-    $self->_set_search_string($q->stringify);
     my $params = { start => $self->_start_row,
                    rows => $self->_rows };
     if (my $facet_field = $self->facets) {
@@ -225,21 +245,24 @@ sub has_more {
 
 
 sub _search_query {
-    my ($self, $q) = @_;
-    if ($q && $q =~ /\w/) {
-        my @terms = grep { $_ } split(/ /, $q);
+    my ($self, $string) = @_;
+    my (@terms, $query);
+    if ($string && $string =~ /\w/) {
+        @terms = grep { $_ } split(/ /, $string);
         # search all fields
-        
         my @queries;
         foreach my $field (@{ $self->search_fields }) {
             push @queries, { $field => [ -and =>  @terms ] };
         }
-        return WebService::Solr::Query->new(\@queries);
+        $query = WebService::Solr::Query->new(\@queries);
     }
     else {
         # search everything
-        return WebService::Solr::Query->new( { '*' => \'*' } );
+        $query = WebService::Solr::Query->new( { '*' => \'*' } );
     }
+    $self->_set_search_string($query->stringify);
+    $self->_set_search_terms(\@terms);
+    return $query;
 }
 
 

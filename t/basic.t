@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Interchange::Search::Solr;
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Data::Dumper;
 
 my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
@@ -18,10 +18,11 @@ is ($solr->search_string, '(*:*)', "Empty search returns everything");
 ok ($solr->num_found, "Found results") and diag "Results: " . $solr->num_found;
 $solr->search("the boot");
 
-print Dumper($solr);
-
 like $solr->search_string, qr/\(\(sku:"the"\) AND \(sku:"boot"\)\)/,
   "Search string interpolated" . $solr->search_string;
+
+is_deeply ($solr->search_terms, [qw/the boot/], "Search terms saved");
+
 
 my @results = $solr->response->docs;
 # print Dumper(\@results);
