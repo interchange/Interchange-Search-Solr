@@ -4,11 +4,11 @@ use utf8;
 use strict;
 use warnings;
 
-use Calevo::Search::Solr;
+use Interchange::Search::Solr;
 use Test::More tests => 15;
 use Data::Dumper;
 
-my $solr = Calevo::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
+my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 ok($solr, "Object created");
 ok($solr->solr_object, "Internal Solr instance ok");
 $solr->start(3);

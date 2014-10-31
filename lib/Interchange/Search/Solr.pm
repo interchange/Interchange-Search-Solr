@@ -1,4 +1,4 @@
-package Calevo::Search::Solr;
+package Interchange::Search::Solr;
 
 use 5.010001;
 use strict;
@@ -9,7 +9,7 @@ use WebService::Solr;
 
 =head1 NAME
 
-Calevo::Search::Solr -- Solr query encapsulation
+Interchange::Search::Solr -- Solr query encapsulation
 
 =head1 VERSION
 
@@ -26,8 +26,8 @@ Quick summary of what the module does.
 
 Perhaps a little code snippet.
 
-    use Calevo::Search::Solr;
-    my $solr = Calevo::Search::Solr->new(solr_url => $url);
+    use Interchange::Search::Solr;
+    my $solr = Interchange::Search::Solr->new(solr_url => $url);
     $solr->rows(10);
     $solr->start(0);
     $solr->search('shirts');
@@ -273,7 +273,7 @@ Marco Pessotto, C<< <melmothx at gmail.com> >>
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-calevo-search-solr at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Calevo-Search-Solr>.  I will be notified, and then you'll
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Interchange-Search-Solr>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 
@@ -283,7 +283,7 @@ automatically be notified of progress on your bug as I make changes.
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Calevo::Search::Solr
+    perldoc Interchange::Search::Solr
 
 
 You can also look for information at:
@@ -292,19 +292,19 @@ You can also look for information at:
 
 =item * RT: CPAN's request tracker (report bugs here)
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Calevo-Search-Solr>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Interchange-Search-Solr>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/Calevo-Search-Solr>
+L<http://annocpan.org/dist/Interchange-Search-Solr>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/Calevo-Search-Solr>
+L<http://cpanratings.perl.org/d/Interchange-Search-Solr>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Calevo-Search-Solr/>
+L<http://search.cpan.org/dist/Interchange-Search-Solr/>
 
 =back
 
@@ -355,4 +355,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of Calevo::Search::Solr
+1; # End of Interchange::Search::Solr

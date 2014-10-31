@@ -4,10 +4,10 @@ use warnings FATAL => 'all';
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME             => 'Calevo::Search::Solr',
+    NAME             => 'Interchange::Search::Solr',
     AUTHOR           => q{Marco Pessotto <melmothx@gmail.com>},
-    VERSION_FROM     => 'lib/Calevo/Search/Solr.pm',
-    ABSTRACT_FROM    => 'lib/Calevo/Search/Solr.pm',
+    VERSION_FROM     => 'lib/Interchange/Search/Solr.pm',
+    ABSTRACT_FROM    => 'lib/Interchange/Search/Solr.pm',
     LICENSE          => 'Artistic_2_0',
     PL_FILES         => {},
     MIN_PERL_VERSION => 5.010001,
@@ -22,5 +22,5 @@ WriteMakefile(
                   'Moo' => 0,
                  },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES => 'Calevo-Search-Solr-*' },
+    clean => { FILES => 'Interchange-Search-Solr-*' },
 );

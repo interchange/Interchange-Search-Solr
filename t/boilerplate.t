@@ -50,7 +50,7 @@ TODO: {
     "placeholder date/time"       => qr(Date/time)
   );
 
-  module_boilerplate_ok('lib/Calevo/Search/Solr.pm');
+  module_boilerplate_ok('lib/Interchange/Search/Solr.pm');
 
 
 }

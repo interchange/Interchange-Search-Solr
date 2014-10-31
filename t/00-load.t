@@ -7,7 +7,7 @@ use Test::More;
 plan tests => 1;
 
 BEGIN {
-    use_ok( 'Calevo::Search::Solr' ) || print "Bail out!\n";
+    use_ok( 'Interchange::Search::Solr' ) || print "Bail out!\n";
 }
 
-diag( "Testing Calevo::Search::Solr $Calevo::Search::Solr::VERSION, Perl $], $^X" );
+diag( "Testing Interchange::Search::Solr $Interchange::Search::Solr::VERSION, Perl $], $^X" );
