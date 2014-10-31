@@ -5,7 +5,7 @@ use warnings;
 
 use Interchange::Search::Solr;
 use Data::Dumper;
-use Test::More tests => 12;
+use Test::More tests => 15;
 
 my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 
@@ -44,7 +44,26 @@ is ($solr->url_builder([qw/pinco pallino/],
     "Url builder works");
 
 $solr->search_from_url('/shirt/manufacturer/pikeur');
-my @skus = $solr->skus_found;
+@skus = $solr->skus_found;
 ok (scalar(@skus), "Found some results with /shirt/manufacturer/pikeur");
 ok ($solr->has_more, "And has more");
 ok ($solr->num_found, "Total: " . $solr->num_found);
+
+$solr->search_from_url('/shirt');
+
+my @links = map { $_->[0]->{query_url} }  values %{ $solr->facets_found };
+
+like $links[0], qr{words/shirt/.+/.+}, "Found the filter link $links[0]";
+
+
+$solr->search_from_url('/');
+
+@links = map { $_->[0]->{query_url} }  values %{ $solr->facets_found };
+
+like $links[0], qr{.+/.+}, "Found the filter link $links[0]";
+
+$solr->search_from_url('/manufacturer/pikeur');
+
+is($solr->facets_found->{manufacturer}->[0]->{query_url}, '',
+   "After querying a manufacturer, removing the bit would reset the search");
+

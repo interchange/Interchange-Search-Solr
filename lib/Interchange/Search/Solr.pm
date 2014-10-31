@@ -143,7 +143,9 @@ has response => (is => 'rwp');
 
 has search_string => (is => 'rwp');
 
-has search_terms  => (is => 'rwp');
+has search_terms  => (is => 'rwp',
+                      isa => sub { die unless ref($_[0]) eq 'ARRAY' },
+                     );
 
 =head1 INTERNAL ACCESSORS
 
@@ -291,7 +293,11 @@ sub facets_found {
         while (@list > 1) {
             my $name = shift @list;
             my $count = shift @list;
-            push @items, { name => $name, count => $count };
+            push @items, {
+                          name => $name,
+                          count => $count,
+                          query_url => $self->_build_facet_url($field, $name),
+                         };
         }
         $out{$field} = \@items;
     }
@@ -358,6 +364,7 @@ sub reset_object {
     $self->_set_response(undef);
     $self->_set_search_string(undef);
     $self->filters(undef);
+    $self->_set_search_terms([]);
 }
 
 sub search_from_url {
@@ -371,6 +378,7 @@ sub search_from_url {
 
 sub _parse_url {
     my ($self, $url) = @_;
+    return unless $url;
     my @fragments = grep { $_ } split('/', $url);
 
     # nothing to do if there are no fragments
@@ -469,7 +477,7 @@ sub url_builder {
             }
         }
     }
-    if ($page > 1) {
+    if ($page and $page > 1) {
         push @fragments, page => $page;
     }
     return join ('/', @fragments);
@@ -478,8 +486,39 @@ sub url_builder {
 sub _build_facet_url {
     my ($self, $field, $name) = @_;
     # get the current filters
-    
-    
+    my @terms = @{ $self->search_terms };
+    # page is not needed
+    # now we have to modify the filters, caring not to break the global one
+    my %toggled_filters;
+    my $filters = $self->filters;
+    if ($filters && %$filters ) {
+        foreach my $filter (keys %$filters) {
+
+            # do a copy
+            my @active = @{ $filters->{$filter} };
+
+            # flip the filter bit when the filter is the field passed
+            if ($filter eq $field) {
+                if (grep { $_ eq $name } @active) {
+                    # remove the active filter
+                    @active = grep { $_ ne $name } @active;
+                }
+                else {
+                    push @active, $name;
+                }
+            }
+            else {
+                push @active, $name;
+            }
+            $toggled_filters{$filter} = \@active if @active;
+        }
+    }
+    else {
+        # no filters, add them
+        $toggled_filters{$field} = [ $name ];
+    }
+    my $url = $self->url_builder(\@terms, \%toggled_filters);
+    return $url;
 }
 
 =head1 AUTHOR
