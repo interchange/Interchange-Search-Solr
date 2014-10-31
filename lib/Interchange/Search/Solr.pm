@@ -6,6 +6,7 @@ use warnings;
 
 use Moo;
 use WebService::Solr;
+use WebService::Solr::Query;
 
 =head1 NAME
 
@@ -145,7 +146,7 @@ Return true if there are more pages
 sub search {
     my ($self, $query) = @_;
     my $q = $self->_search_query($query);
-    $self->_set_search_string($q);
+    $self->_set_search_string($q->stringify);
     my $params = { start => $self->_start_row,
                    rows => $self->_rows };
     if (my $facet_field = $self->facets) {
@@ -226,11 +227,18 @@ sub has_more {
 sub _search_query {
     my ($self, $q) = @_;
     if ($q && $q =~ /\w/) {
-        $q =~ s/ /* AND */g;
-        return join( ' OR ', map( "$_:(*$q*)", @{$self->search_fields}) );
+        my @terms = grep { $_ } split(/ /, $q);
+        # search all fields
+        
+        my @queries;
+        foreach my $field (@{ $self->search_fields }) {
+            push @queries, { $field => [ -and =>  @terms ] };
+        }
+        return WebService::Solr::Query->new(\@queries);
     }
     else {
-        return '*';
+        # search everything
+        return WebService::Solr::Query->new( { '*' => \'*' } );
     }
 }
 

@@ -14,11 +14,14 @@ ok($solr->solr_object, "Internal Solr instance ok");
 $solr->start(3);
 $solr->rows(6);
 $solr->search();
-is ($solr->search_string, '*', "Empty search returns everything");
+is ($solr->search_string, '(*:*)', "Empty search returns everything");
 ok ($solr->num_found, "Found results") and diag "Results: " . $solr->num_found;
-$solr->search("boot");
+$solr->search("the boot");
 
-like $solr->search_string, qr/\*boot\*/, "Search string interpolated";
+print Dumper($solr);
+
+like $solr->search_string, qr/\(\(sku:"the"\) AND \(sku:"boot"\)\)/,
+  "Search string interpolated" . $solr->search_string;
 
 my @results = $solr->response->docs;
 # print Dumper(\@results);
