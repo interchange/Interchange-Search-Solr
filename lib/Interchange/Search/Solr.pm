@@ -8,6 +8,7 @@ use Moo;
 use WebService::Solr;
 use WebService::Solr::Query;
 use Data::Dumper;
+use POSIX qw//;
 
 =head1 NAME
 
@@ -44,6 +45,10 @@ Url of the solr instance. Read-only.
 =head2 rows
 
 Number of results to return. Read-write (so you can reuse the object).
+
+=head2 page_scope
+
+The number of paging items for the paginator
 
 =head2 search_fields
 
@@ -132,6 +137,9 @@ has facets => (is => 'rw',
 
 has rows => (is => 'rw',
              default => sub { 10 });
+
+has page_scope => (is => 'rw',
+                   default => sub { 5 });
 
 has start => (is => 'rw',
               default => sub { 0 });
@@ -275,7 +283,12 @@ sub _convert_to_int {
 
 sub num_found {
     my $self = shift;
-    return $self->response->content->{response}->{numFound} || 0;
+    if (my $res = $self->response) {
+        return $res->content->{response}->{numFound} || 0;
+    }
+    else {
+        return 0;
+    }
 }
 
 sub skus_found {
@@ -535,6 +548,76 @@ sub _filter_is_active {
         }
     }
     return 0 ;
+}
+
+=head2 paginator
+
+Return an hashref suitable to be turned into a paginator, undef if
+there is no need for a paginator.
+
+The structure looks like this:
+
+ {
+   next => 'words/bla/page/3' || undef,
+   previous => 'words/bla/page/5' || undef,
+   pages => [
+             {
+              url => 'words/bla/page/1',
+             },
+             {
+              url => 'words/bla/page/2',
+             },
+             {
+              url => 'words/bla/page/3',
+             },
+             {
+              url => 'words/bla/page/4',
+              current => 1,
+             },
+             {
+              url => 'words/bla/page/5',
+             },
+            ]
+ }
+
+=cut
+
+sub paginator {
+    my $self = shift;
+    my $page = $self->page || 1;
+    my $page_size = $self->rows;
+    my $page_scope = $self->page_scope;
+    my $total = $self->num_found;
+    return unless $total;
+    my $total_pages = POSIX::ceil($total / $page_size);
+    return if $total_pages < 2;
+
+    # compute the scope
+    my $start = ($page - $page_scope > 0) ? ($page - $page_scope) : 1;
+    my $end   = ($page + $page_scope < $total_pages) ? ($page + $page_scope) : $total_pages;
+
+    my %pager = (items => []);
+    for (my $count = $start; $count <= $end ; $count++) {
+        # create the link
+        my $url = $self->url_builder($self->search_terms,
+                                     $self->filters,
+                                     $count);
+        my $item = {
+                    url => $url,
+                   };
+        my $position = $count - $page;
+        if ($position == 0) {
+            $item->{current} = 1;
+        }
+        elsif ($position == 1) {
+            $pager{next} = $url;
+        }
+        elsif ($position == -1) {
+            $pager{previous} = $url;
+        }
+        push @{$pager{items}}, $item;
+    }
+    return \%pager;
 }
 
 

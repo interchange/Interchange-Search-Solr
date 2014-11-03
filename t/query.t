@@ -5,7 +5,7 @@ use warnings;
 
 use Interchange::Search::Solr;
 use Data::Dumper;
-use Test::More tests => 17;
+use Test::More tests => 18;
 
 my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 
@@ -63,6 +63,35 @@ $solr->search_from_url('/');
 like $links[0], qr{.+/.+}, "Found the filter link $links[0]";
 
 $solr->search_from_url('/manufacturer/pikeur');
+
+# this test is fragile because it depends on the db
+
+is_deeply($solr->paginator,
+          {
+           'next' => 'manufacturer/pikeur/page/2',
+           'items' => [
+                       {
+                        'current' => 1,
+                        'url' => 'manufacturer/pikeur'
+                       },
+                       {
+                        'url' => 'manufacturer/pikeur/page/2'
+                       },
+                       {
+                        'url' => 'manufacturer/pikeur/page/3'
+                       },
+                       {
+                        'url' => 'manufacturer/pikeur/page/4'
+                       },
+                       {
+                        'url' => 'manufacturer/pikeur/page/5'
+                       },
+                       {
+                        'url' => 'manufacturer/pikeur/page/6'
+                       }
+                      ]
+          });
+
 
 is($solr->facets_found->{manufacturer}->[0]->{query_url}, '',
    "After querying a manufacturer, removing the bit would reset the search");
