@@ -148,7 +148,7 @@ has response => (is => 'rwp');
 
 has search_string => (is => 'rwp');
 
-has search_terms  => (is => 'rwp',
+has search_terms  => (is => 'rw',
                       isa => sub { die unless ref($_[0]) eq 'ARRAY' },
                      );
 
@@ -197,7 +197,7 @@ sub search {
     if ($string) {
         @terms = grep { $_ } split(/\s+/, $string);
     }
-    $self->_set_search_terms(\@terms);
+    $self->search_terms(\@terms);
     return $self->_do_search;
 }
 
@@ -370,7 +370,7 @@ sub reset_object {
     $self->_set_response(undef);
     $self->_set_search_string(undef);
     $self->filters({});
-    $self->_set_search_terms([]);
+    $self->search_terms([]);
 }
 
 sub search_from_url {
@@ -438,7 +438,7 @@ sub _parse_url {
             push @terms, $chunk;
         }
     }
-    $self->_set_search_terms(\@terms);
+    $self->search_terms(\@terms);
     $self->filters(\%filters);
     return unless @fragments;
 }
