@@ -68,7 +68,8 @@ $solr->search_from_url('/manufacturer/pikeur');
 
 is_deeply($solr->paginator,
           {
-           'next' => 'manufacturer/pikeur/page/2',
+           next => 'manufacturer/pikeur/page/2',
+           last => 'manufacturer/pikeur/page/32',
            'items' => [
                        {
                         'current' => 1,

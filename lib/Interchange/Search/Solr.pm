@@ -618,6 +618,15 @@ sub paginator {
         }
         push @{$pager{items}}, $item;
     }
+    if ($page != $total_pages) {
+        $pager{last} = $self->url_builder($self->search_terms,
+                                          $self->filters,
+                                          $total_pages);
+    }
+    if ($page != 1) {
+        $pager{first} = $self->url_builder($self->search_terms,
+                                           $self->filters, 1);
+    }
     return \%pager;
 }
 
