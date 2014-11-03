@@ -7,6 +7,7 @@ use warnings;
 use Moo;
 use WebService::Solr;
 use WebService::Solr::Query;
+use Data::Dumper;
 
 =head1 NAME
 
@@ -301,6 +302,7 @@ sub facets_found {
                           name => $name,
                           count => $count,
                           query_url => $self->_build_facet_url($field, $name),
+                          active => $self->_filter_is_active($field, $name),
                          };
         }
         $out{$field} = \@items;
@@ -490,40 +492,51 @@ sub url_builder {
 sub _build_facet_url {
     my ($self, $field, $name) = @_;
     # get the current filters
+    # print "Building $field $name\n";
     my @terms = @{ $self->search_terms };
     # page is not needed
-    # now we have to modify the filters, caring not to break the global one
+
+    # the hash for the url builder
     my %toggled_filters;
+
+    # the current filters
     my $filters = $self->filters;
-    if ($filters && %$filters ) {
-        foreach my $filter (keys %$filters) {
 
-            # do a copy
-            my @active = @{ $filters->{$filter} };
+    # loop over the facets we defined
+    foreach my $facet (@{ $self->facets }) {
 
-            # flip the filter bit when the filter is the field passed
-            if ($filter eq $field) {
-                if (grep { $_ eq $name } @active) {
-                    # remove the active filter
-                    @active = grep { $_ ne $name } @active;
-                }
-                else {
-                    push @active, $name;
-                }
-            }
-            else {
-                push @active, $name;
-            }
-            $toggled_filters{$filter} = \@active if @active;
+        # copy of the active filters
+        my @active = @{ $filters->{$facet} || [] };
+
+        # filter is active: remove
+        if ($self->_filter_is_active($facet, $name)) {
+            @active = grep { $_ ne $name } @active;
         }
+        # it's not active, but we're building an url for this facet
+        elsif ($facet eq $field)  {
+            push @active, $name;
+        }
+        # and store
+        $toggled_filters{$facet} = \@active if @active;
     }
-    else {
-        # no filters, add them
-        $toggled_filters{$field} = [ $name ];
-    }
+    #    print Dumper(\@terms, \%toggled_filters);
     my $url = $self->url_builder(\@terms, \%toggled_filters);
     return $url;
 }
+
+sub _filter_is_active {
+    my ($self, $field, $name) = @_;
+    my $filters = $self->filters;
+    if (my $list = $self->filters->{$field}) {
+        if (my @active = @$list) {
+            if (grep { $_ eq $name } @active) {
+                return 1;
+            }
+        }
+    }
+    return 0 ;
+}
+
 
 =head1 AUTHOR
 

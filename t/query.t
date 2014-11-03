@@ -5,7 +5,7 @@ use warnings;
 
 use Interchange::Search::Solr;
 use Data::Dumper;
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 
@@ -66,4 +66,11 @@ $solr->search_from_url('/manufacturer/pikeur');
 
 is($solr->facets_found->{manufacturer}->[0]->{query_url}, '',
    "After querying a manufacturer, removing the bit would reset the search");
+is($solr->facets_found->{manufacturer}->[0]->{active}, 1,
+   "The filter is active");
+print Dumper($solr->facets_found);
+
+like ($solr->facets_found->{suchbegriffe}->[0]->{query_url},
+      qr/suchbegriffe/, "Found the suchbegriffe keyword in the url")
+  and diag $solr->facets_found->{suchbegriffe}->[0]->{query_url};
 
