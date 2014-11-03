@@ -124,6 +124,7 @@ has search_fields => (is => 'ro',
                       isa => sub { die unless ref($_[0]) eq 'ARRAY' });
 
 has facets => (is => 'rw',
+               isa => sub { die "not an arrayref" unless ref($_[0]) eq 'ARRAY' },
                default => sub {
                    return [qw/suchbegriffe manufacturer/];
                });
