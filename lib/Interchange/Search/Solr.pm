@@ -138,7 +138,10 @@ has start => (is => 'rw',
 has page => (is => 'rw',
              default => sub { 1 });
 
-has filters => (is => 'rw');
+has filters => (is => 'rw',
+                isa => sub { die "not an hashref" unless ref($_[0]) eq 'HASH' },
+                default => sub { return {} },
+               );
 
 has response => (is => 'rwp');
 
@@ -364,7 +367,7 @@ sub reset_object {
     $self->page(1);
     $self->_set_response(undef);
     $self->_set_search_string(undef);
-    $self->filters(undef);
+    $self->filters({});
     $self->_set_search_terms([]);
 }
 
