@@ -72,22 +72,28 @@ is_deeply($solr->paginator,
            'items' => [
                        {
                         'current' => 1,
+                        name => 1,
                         'url' => 'manufacturer/pikeur'
                        },
                        {
-                        'url' => 'manufacturer/pikeur/page/2'
+                        'url' => 'manufacturer/pikeur/page/2',
+                        name => 2,
                        },
                        {
-                        'url' => 'manufacturer/pikeur/page/3'
+                        'url' => 'manufacturer/pikeur/page/3',
+                        name => 3,
                        },
                        {
-                        'url' => 'manufacturer/pikeur/page/4'
+                        'url' => 'manufacturer/pikeur/page/4',
+                        name => 4,
                        },
                        {
-                        'url' => 'manufacturer/pikeur/page/5'
+                        'url' => 'manufacturer/pikeur/page/5',
+                        name => 5,
                        },
                        {
-                        'url' => 'manufacturer/pikeur/page/6'
+                        'url' => 'manufacturer/pikeur/page/6',
+                        name => 6,
                        }
                       ]
           });

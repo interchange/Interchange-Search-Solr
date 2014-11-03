@@ -604,6 +604,7 @@ sub paginator {
                                      $count);
         my $item = {
                     url => $url,
+                    name => $count,
                    };
         my $position = $count - $page;
         if ($position == 0) {
