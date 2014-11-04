@@ -458,7 +458,6 @@ sub _parse_url {
 
 sub _set_start_from_page {
     my $self = shift;
-    # unclear if the trailing +1 is needed
     $self->start($self->rows * ($self->page - 1));
 }
 
