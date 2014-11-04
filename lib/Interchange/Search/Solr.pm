@@ -43,10 +43,12 @@ Perhaps a little code snippet.
 
 Url of the solr instance. Read-only.
 
-=head2 input_encoding
+=head2 input_encoding [DEPRECATED]
 
 Assume the urls to be in this encoding, so decode it before parsing
-it.
+it. This is basically a (probably bugged) workaround when you have all
+the shop in latin1. If the search keep crashing on non-ascii
+characters, try to set this to iso-8859-1.
 
 =head2 rows
 
