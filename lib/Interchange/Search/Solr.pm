@@ -180,6 +180,7 @@ has search_string => (is => 'rwp');
 
 has search_terms  => (is => 'rw',
                       isa => sub { die unless ref($_[0]) eq 'ARRAY' },
+                      default => sub { return [] },
                      );
 
 =head1 INTERNAL ACCESSORS
@@ -657,6 +658,43 @@ sub paginator {
                                            $self->filters, 1);
     }
     return \%pager;
+}
+
+=head2 terms_found
+
+Returns an hashref suitable to build a widget with the terms used and
+the links to toggle them. Return undef if no terms were used in the search.
+
+The structure looks like this:
+
+ {
+  reset => '',
+  terms => [
+            { term => 'first', url => 'words/second' },
+            { term => 'second', url => 'words/first' },
+           ],
+ }
+
+=cut
+
+sub terms_found {
+    my $self = shift;
+    my @terms = @{ $self->search_terms };
+    return unless @terms;
+    my %out = (
+               reset => $self->url_builder([], $self->filters),
+               terms => [],
+              );
+    foreach my $term (@terms) {
+        my @toggled = grep { $_ ne $term } @terms;
+        push @{ $out{terms} }, {
+                                term => $term,
+                                url => $self->url_builder(\@toggled,
+                                                          $self->filters),
+                               };
+    }
+    return \%out;
+    
 }
 
 

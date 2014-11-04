@@ -5,7 +5,7 @@ use warnings;
 
 use Interchange::Search::Solr;
 use Data::Dumper;
-use Test::More tests => 19;
+use Test::More tests => 23;
 
 my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 
@@ -114,4 +114,42 @@ $solr->search_from_url('/shirt/manufacturer/pikeur');
 @skus = $solr->skus_found;
 is (scalar(@skus), $solr->num_found, "Skus reported and returned match");
 # print Dumper($solr);
+
+$solr->search_from_url('/words/shirt/fashion/manufacturer/pikeur');
+
+ok (scalar($solr->skus_found), "Found some results");
+
+is_deeply($solr->terms_found, {
+                               reset => 'manufacturer/pikeur',
+                               terms => [
+                                         {
+                                          term => 'shirt',
+                                          url => 'words/fashion/manufacturer/pikeur',
+                                         },
+                                         {
+                                          term => 'fashion',
+                                          url => 'words/shirt/manufacturer/pikeur',
+                                         },
+                                        ],
+                              }, "struct ok");
+
+
+$solr->search_from_url('/words/shirt/fashion');
+
+ok (scalar($solr->skus_found), "Found some results");
+
+is_deeply($solr->terms_found, {
+                               reset => '',
+                               terms => [
+                                         {
+                                          term => 'shirt',
+                                          url => 'words/fashion',
+                                         },
+                                         {
+                                          term => 'fashion',
+                                          url => 'words/shirt',
+                                         },
+                                        ],
+                              }, "struct ok");
+
 
