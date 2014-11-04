@@ -9,6 +9,7 @@ use WebService::Solr;
 use WebService::Solr::Query;
 use Data::Dumper;
 use POSIX qw//;
+use Encode qw//;
 
 =head1 NAME
 
@@ -41,6 +42,11 @@ Perhaps a little code snippet.
 =head2 solr_url
 
 Url of the solr instance. Read-only.
+
+=head2 input_encoding
+
+Assume the urls to be in this encoding, so decode it before parsing
+it.
 
 =head2 rows
 
@@ -140,6 +146,8 @@ The terms used for the current search.
 has solr_url => (is => 'ro',
                  required => 1);
 
+has input_encoding => (is => 'ro');
+
 has search_fields => (is => 'ro',
                       default => sub { return [qw/sku
                                                   title
@@ -195,7 +203,16 @@ has solr_object => (is => 'lazy');
 
 sub _build_solr_object {
     my $self = shift;
-    return WebService::Solr->new($self->solr_url);
+    my @args = $self->solr_url;
+#     if (my $enc = $self->solr_encoding) {
+#         my %options = (
+#                        default_params => {
+#                                           ie => $enc,
+#                                          },
+#                       );
+#         push @args, \%options;
+#     }
+    return WebService::Solr->new(@args);
 }
 
 =head1 METHODS
@@ -411,6 +428,9 @@ sub reset_object {
 
 sub search_from_url {
     my ($self, $url) = @_;
+    if (my $enc = $self->input_encoding) {
+        $url = Encode::decode($enc, $url);
+    }
     $self->_parse_url($url);
     # at this point, all the parameters are set after the url parsing
     return $self->_do_search;
