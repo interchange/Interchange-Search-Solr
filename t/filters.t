@@ -19,12 +19,11 @@ $solr->facets([qw/manufacturer/]);
 $solr->search('shirt');
 is_deeply ($solr->facets, [qw/manufacturer/], "facets can be changed");
 $facets = $solr->facets_found;
-is (ref($facets), 'HASH', "and is an hashref again");
-diag Dumper($facets);
+is (ref($facets), 'HASH', "and is an hashref again") or diag Dumper($facets);
 
 # pick the first
 my $filter = $facets->{manufacturer}->[0]->{name};
-ok($filter, "Filter is $filter");
+ok($filter, "Filter is $filter") or diag Dumper($filter);
 
 
 

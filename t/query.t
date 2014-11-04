@@ -12,7 +12,7 @@ my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/sol
 $solr->search_from_url('/the/boot/i/like/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur/page/2');
 
 is_deeply($solr->search_terms, [qw/the boot i like/], "Search terms picked up ok");
-is($solr->start, 11, "Start computed correctly"), #
+is($solr->start, 10, "Start computed correctly"), # we have to start at 0
 is($solr->page, 2, "Page picked up");
 is_deeply($solr->filters, {
                            suchbegriffe => [qw/xxxxx yyyy/],
@@ -113,4 +113,5 @@ $solr->rows(1000);
 $solr->search_from_url('/shirt/manufacturer/pikeur');
 @skus = $solr->skus_found;
 is (scalar(@skus), $solr->num_found, "Skus reported and returned match");
+# print Dumper($solr);
 
