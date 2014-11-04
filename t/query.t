@@ -5,7 +5,7 @@ use warnings;
 
 use Interchange::Search::Solr;
 use Data::Dumper;
-use Test::More tests => 18;
+use Test::More tests => 19;
 
 my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 
@@ -103,10 +103,14 @@ is_deeply($solr->paginator,
 is($solr->facets_found->{manufacturer}->[0]->{query_url}, '',
    "After querying a manufacturer, removing the bit would reset the search");
 is($solr->facets_found->{manufacturer}->[0]->{active}, 1,
-   "The filter is active");
-print Dumper($solr->facets_found);
+   "The filter is active") or diag Dumper($solr->facets_found);
 
 like ($solr->facets_found->{suchbegriffe}->[0]->{query_url},
       qr/suchbegriffe/, "Found the suchbegriffe keyword in the url")
-  and diag $solr->facets_found->{suchbegriffe}->[0]->{query_url};
+  or diag $solr->facets_found->{suchbegriffe}->[0]->{query_url};
+
+$solr->rows(1000);
+$solr->search_from_url('/shirt/manufacturer/pikeur');
+@skus = $solr->skus_found;
+is (scalar(@skus), $solr->num_found, "Skus reported and returned match");
 
