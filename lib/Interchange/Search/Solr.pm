@@ -105,6 +105,28 @@ this accessor, with this structure:
    ...
  }
 
+Each hashref in each field's arrayref has the following keys:
+
+=over 4
+
+=item name
+
+The name to display
+
+=item count
+
+The count of item
+
+=item query_url
+
+The url fragment to toggle this filter.
+
+=item active
+
+True if currently in use (to be used for, e.g., checkboxes)
+
+=back
+
 =head2 search_string
 
 Debug only. The search string produced by the query.
