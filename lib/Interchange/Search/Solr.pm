@@ -411,15 +411,36 @@ sub reset_object {
 
 sub search_from_url {
     my ($self, $url) = @_;
-    $self->reset_object;
     $self->_parse_url($url);
-    $self->_set_start_from_page;
     # at this point, all the parameters are set after the url parsing
     return $self->_do_search;
 }
 
+=head2 add_terms_to_url($url, $string)
+
+Parse the url, and return a new one with the additional words added.
+The page is discarded, while the filters are retained.
+
+=cut
+
+sub add_terms_to_url {
+    my ($self, $url, $other_terms) = @_;
+    die "Bad usage" unless defined $url;
+    $self->_parse_url($url);
+    return $url unless $other_terms;
+    my @additional_terms = grep { $_ } split(/\s+/, $other_terms);
+    my @terms = @{ $self->search_terms };
+    push @terms, @additional_terms;
+    $self->search_terms(\@terms);
+    return $self->url_builder($self->search_terms,
+                              $self->filters);
+    
+}
+
+
 sub _parse_url {
     my ($self, $url) = @_;
+    $self->reset_object;
     return unless $url;
     my @fragments = grep { $_ } split('/', $url);
 
@@ -447,6 +468,7 @@ sub _parse_url {
             else {
                 $self->page(1);
             }
+            $self->_set_start_from_page;
         }
     }
     return unless @fragments;

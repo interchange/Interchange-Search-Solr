@@ -5,7 +5,7 @@ use warnings;
 
 use Interchange::Search::Solr;
 use Data::Dumper;
-use Test::More tests => 23;
+use Test::More tests => 24;
 
 my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
 
@@ -152,4 +152,7 @@ is_deeply($solr->terms_found, {
                                         ],
                               }, "struct ok");
 
+
+is ($solr->add_terms_to_url('words/pippo', "pluto  paperino  ciccia"),
+    "words/pippo/pluto/paperino/ciccia");
 
