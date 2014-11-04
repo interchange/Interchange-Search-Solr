@@ -153,6 +153,6 @@ is_deeply($solr->terms_found, {
                               }, "struct ok");
 
 
-is ($solr->add_terms_to_url('words/pippo', "pluto  paperino  ciccia"),
+is ($solr->add_terms_to_url('words/pippo', qw/pluto paperino  ciccia/),
     "words/pippo/pluto/paperino/ciccia");
 

@@ -424,11 +424,11 @@ The page is discarded, while the filters are retained.
 =cut
 
 sub add_terms_to_url {
-    my ($self, $url, $other_terms) = @_;
+    my ($self, $url, @other_terms) = @_;
     die "Bad usage" unless defined $url;
     $self->_parse_url($url);
-    return $url unless $other_terms;
-    my @additional_terms = grep { $_ } split(/\s+/, $other_terms);
+    return $url unless @other_terms;
+    my @additional_terms = grep { $_ } @other_terms;
     my @terms = @{ $self->search_terms };
     push @terms, @additional_terms;
     $self->search_terms(\@terms);
