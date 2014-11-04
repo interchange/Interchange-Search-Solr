@@ -554,9 +554,17 @@ sub _filter_is_active {
 Return an hashref suitable to be turned into a paginator, undef if
 there is no need for a paginator.
 
+Be careful that a defined empty string in the first/last/next/previous
+keys is perfectly legit and points to an unfiltered search which will
+return all the items, so concatenating it to the prefix is perfectly
+fine (e.g. "products/" . ''). When rendering this structure to HTML,
+just check if the value is defined, not if it's true.
+
 The structure looks like this:
 
  {
+   first => 'words/bla' || undef,
+   last  => 'words/bla/page/5' || undef,
    next => 'words/bla/page/3' || undef,
    previous => 'words/bla/page/5' || undef,
    pages => [
