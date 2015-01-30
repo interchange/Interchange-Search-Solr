@@ -5,10 +5,18 @@ use strict;
 use warnings;
 
 use Interchange::Search::Solr;
-use Test::More tests => 16;
+use Test::More;
 use Data::Dumper;
 
-my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
+my $solr;
+
+if ($ENV{SOLR_URL}) {
+    $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL});
+}
+else {
+    plan skip_all => "Please set environment variable SOLR_URL.";
+}
+
 ok($solr, "Object created");
 ok($solr->solr_object, "Internal Solr instance ok");
 $solr->start(3);
@@ -53,3 +61,4 @@ $solr->search("boot");
 ok $solr->num_found, "Found results with messed up start/rows";
 ok $solr->has_more, "And has more";
 
+done_testing;

@@ -5,10 +5,17 @@ use strict;
 use warnings;
 
 use Interchange::Search::Solr;
-use Test::More tests => 5;
+use Test::More;
 use Data::Dumper;
 
-my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
+my $solr;
+
+if ($ENV{SOLR_URL}) {
+    $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL});
+}
+else {
+    plan skip_all => "Please set environment variable SOLR_URL.";
+}
 
 ok($solr, "instance ok");
 $solr->search('boot');
@@ -24,6 +31,9 @@ is (ref($facets), 'HASH', "and is an hashref again") or diag Dumper($facets);
 # pick the first
 my $filter = $facets->{manufacturer}->[0]->{name};
 ok($filter, "Filter is $filter") or diag Dumper($filter);
+
+done_testing;
+
 
 
 

@@ -5,9 +5,16 @@ use warnings;
 
 use Interchange::Search::Solr;
 use Data::Dumper;
-use Test::More tests => 24;
+use Test::More;
 
-my $solr = Interchange::Search::Solr->new(solr_url => 'http://localhost:8985/solr/collection1');
+my $solr;
+
+if ($ENV{SOLR_URL}) {
+    $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL});
+}
+else {
+    plan skip_all => "Please set environment variable SOLR_URL.";
+}
 
 $solr->search_from_url('/the/boot/i/like/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur/page/2');
 
@@ -155,4 +162,6 @@ is_deeply($solr->terms_found, {
 
 is ($solr->add_terms_to_url('words/pippo', qw/pluto paperino  ciccia/),
     "words/pippo/pluto/paperino/ciccia");
+
+done_testing;
 
