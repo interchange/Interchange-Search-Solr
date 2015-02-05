@@ -1,4 +1,3 @@
-MANIFEST
 MANIFEST.bak
 Makefile
 Makefile.old
@@ -16,5 +15,5 @@ inc/
 nytprof.out
 pod2htm*.tmp
 pm_to_blib
-Calevo-Search-Solr-*
-Calevo-Search-Solr-*.tar.gz
+Interchange-Search-Solr-*
+Interchange-Search-Solr-*.tar.gz
