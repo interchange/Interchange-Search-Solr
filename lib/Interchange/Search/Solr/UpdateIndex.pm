@@ -86,6 +86,20 @@ sub update {
     return $response;
 }
 
+=head3 query
+
+Queries index.
+
+=cut
+
+sub query {
+	my ($self, $query) = @_;
+	my $url = $self->url . '/select?wt=json&'.$query;
+	my $response = $self->agent->get($url);
+	print $url."\n\r---------------\n\r";
+	return $response;
+}
+
 sub _construct_url {
     my ($self, $mode) = @_;
 
@@ -105,14 +119,6 @@ sub _construct_url {
         $update_url .= 'delta-import';
     }
     #$update_url .= '&commit=true';
-}
-
-sub query {
-	my ($self, $query) = @_;
-	my $url = $self->url . '/select?wt=json&'.$query;
-	my $response = $self->agent->get($url);
-	print $url."\n\r---------------\n\r";
-	return $response;
 }
 
 =head1 AUTHOR
