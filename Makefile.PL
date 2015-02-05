@@ -10,6 +10,7 @@ WriteMakefile(
     ABSTRACT_FROM    => 'lib/Interchange/Search/Solr.pm',
     LICENSE          => 'Artistic_2_0',
     PL_FILES         => {},
+    EXE_FILES        => ['bin/solr_update'],
     MIN_PERL_VERSION => 5.010001,
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
