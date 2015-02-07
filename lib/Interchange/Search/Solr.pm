@@ -62,15 +62,7 @@ The number of paging items for the paginator
 
 An arrayref with the indexed fields to search. Defaults to:
 
-  [qw/sku
-      title
-      comment_en comment_fr
-      comment_nl comment_de
-      comment_se comment_es
-      description_en description_fr
-      description_nl description_de
-      description_se description_es/] 
-
+  [qw/sku name description/]
 
 =head2 facets
 
@@ -151,14 +143,13 @@ has solr_url => (is => 'ro',
 has input_encoding => (is => 'ro');
 
 has search_fields => (is => 'ro',
-                      default => sub { return [qw/sku
-                                                  title
-                                                  comment_en comment_fr
-                                                  comment_nl comment_de
-                                                  comment_se comment_es
-                                                  description_en description_fr
-                                                  description_nl description_de
-                                                  description_se description_es/] },
+                      default => sub {
+                          return [
+                              qw/sku
+                                 name
+                                 description/
+                             ]
+                      },
                       isa => sub { die unless ref($_[0]) eq 'ARRAY' });
 
 has facets => (is => 'rw',
