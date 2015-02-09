@@ -547,10 +547,16 @@ Return the url for the current search.
 =cut
 
 sub current_search_to_url {
-    my ($self) = @_;
+    my ($self, %args) = @_;
+    my $page;
+
+    if (! $args{hide_page}) {
+        $page = $self->page;
+    }
+
     return $self->url_builder($self->search_terms,
                               $self->filters,
-                              $self->page);
+                              $page);
 }
 
 =head2 url_builder(\@terms, \%filters, $page);
