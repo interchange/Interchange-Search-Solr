@@ -35,7 +35,7 @@ Perhaps a little code snippet.
     $solr->rows(10);
     $solr->start(0);
     $solr->search('shirts');
-    my @skus = $solr->skus_found;
+    $results = $solr->results;
 
 =head1 ACCESSORS
 
@@ -183,6 +183,26 @@ has search_terms  => (is => 'rw',
                       isa => sub { die unless ref($_[0]) eq 'ARRAY' },
                       default => sub { return [] },
                      );
+
+sub results {
+    my $self = shift;
+    my @matches;
+
+	for my $doc ( $self->response->docs ) {
+		my (%record, $name);
+
+        for my $fld ($doc->fields) {
+            $name = $fld->name;
+            next if $name =~ /^_/;
+
+            $record{$name} = $fld->value;
+        }
+
+        push  @matches, \%record;
+	}
+
+    return \@matches;
+}
 
 =head1 INTERNAL ACCESSORS
 
