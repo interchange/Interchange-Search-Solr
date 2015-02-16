@@ -10,6 +10,7 @@ use WebService::Solr::Query;
 use Data::Dumper;
 use POSIX qw//;
 use Encode qw//;
+use XML::LibXML;
 
 =head1 NAME
 
@@ -396,11 +397,22 @@ object.
 =cut
 
 sub maintainer_update {
-    my ($self, $mode) = @_;
+    my ($self, $mode, $data) = @_;
     die "Missing argument" unless $mode;
-    my @query;
-    if ($mode eq 'clear') {
-        my %params = (
+    my (@query, %params);
+
+    if ($mode eq 'add') {
+        my $xml = $self->_build_xml_add_op($data);
+
+        %params = (
+            'stream.body' => $xml,
+            commit => 'true',
+        );
+
+        @query = ('update', \%params);
+    }
+    elsif ($mode eq 'clear') {
+        %params = (
                       'stream.body' => '<delete><query>*:*</query></delete>',
                       commit        => 'true',
                      );
@@ -418,6 +430,29 @@ sub maintainer_update {
     return $self->solr_object->generic_solr_request(@query);
 }
 
+# builds XML for add maintainer option
+
+sub _build_xml_add_op {
+    my ($self, $data) = @_;
+    my $doc = XML::LibXML::Document->new;
+    my $el_add = $doc->createElement('add');
+
+    $doc->addChild($el_add);
+
+    my $el_doc = $doc->createElement('doc');
+    $el_add->addChild($el_doc);
+
+    while (my ($name, $value) = each %$data) {
+        if (defined $value) {
+            my $el_field = $doc->createElement('field');
+            $el_field->setAttribute(name => $name);
+            $el_field->appendText($value);
+            $el_doc->addChild($el_field);
+        }
+    }
+
+    return $doc->toString;
+}
 
 =head2 reset_object
 

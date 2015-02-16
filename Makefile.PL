@@ -21,6 +21,7 @@ WriteMakefile(
     PREREQ_PM => {
                   'WebService::Solr' => 0,
                   'Moo' => 0,
+                  'XML::LibXML' => 0,
                  },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Interchange-Search-Solr-*' },
