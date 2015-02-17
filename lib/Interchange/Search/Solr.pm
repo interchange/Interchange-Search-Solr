@@ -188,20 +188,20 @@ has search_terms  => (is => 'rw',
 sub results {
     my $self = shift;
     my @matches;
+    if ($self->response->ok) {
+        for my $doc ( $self->response->docs ) {
+            my (%record, $name);
 
-	for my $doc ( $self->response->docs ) {
-		my (%record, $name);
+            for my $fld ($doc->fields) {
+                $name = $fld->name;
+                next if $name =~ /^_/;
 
-        for my $fld ($doc->fields) {
-            $name = $fld->name;
-            next if $name =~ /^_/;
+                $record{$name} = $fld->value;
+            }
 
-            $record{$name} = $fld->value;
+            push  @matches, \%record;
         }
-
-        push  @matches, \%record;
-	}
-
+    }
     return \@matches;
 }
 
@@ -348,8 +348,10 @@ sub num_found {
 sub skus_found {
     my $self = shift;
     my @skus;
-    foreach my $item ($self->response->docs) {
-        push @skus, $item->value_for('sku');
+    if ($self->response->ok) {
+        foreach my $item ($self->response->docs) {
+            push @skus, $item->value_for('sku');
+        }
     }
     return @skus;
 }
