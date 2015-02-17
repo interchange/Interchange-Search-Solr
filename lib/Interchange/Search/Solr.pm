@@ -136,6 +136,10 @@ Debug only. The search string produced by the query.
 
 The terms used for the current search.
 
+=head2 search_structure
+
+The perl data structure used for the current search.
+
 =cut
 
 has solr_url => (is => 'ro',
@@ -185,6 +189,12 @@ has search_terms  => (is => 'rw',
                       default => sub { return [] },
                      );
 
+has search_structure => (is => 'rw',
+                         isa => sub { die unless ref($_[0]) eq 'HASH' },
+                         default => sub { return {} },
+                        );
+
+
 sub results {
     my $self = shift;
     my @matches;
@@ -231,11 +241,23 @@ sub _build_solr_object {
 
 =head1 METHODS
 
-=head2 search($string)
+=head2 search( [ $string, [ $structure ] ])
 
-Run a search and return a L<WebService::Solr::Response> object. After
-calling this method you can inspect the response using the following
-methods:
+Run a search and return a L<WebService::Solr::Response> object.
+
+The method accept zero, one or two arguments.
+
+With no arguments, run a full wildcard search ('*' => '*');
+
+With one argument, if it's a string, run the search against all the
+indexed fields. If it's a structure, build a query for it. The syntax
+of the structure is described at L<WebService::Solr::Query>.
+
+With two argument, the first should be the string, the second the
+structure, and they will get AND'ed.
+
+After calling this method you can inspect the response using the
+following methods:
 
 =head2 skus_found
 
@@ -252,14 +274,33 @@ Return true if there are more pages
 =cut
 
 sub search {
-    my ($self, $string) = @_;
+    my ($self, $string, $structure) = @_;
     # here we just split the terms, set C<search_terms>, and call
     # _do_search.
+    if ($string and !$structure) {
+        if (ref($string)) {
+            $structure = $string;
+            $string = undef;
+        }
+    }
     my @terms;
+    if ($string and ref($string)) {
+        die "Bad usage: expecting a string and found " . Dumper($string);
+    }
+    if ($structure) {
+        if (!ref($structure)) {
+            die "Bad usage: expecting a reference and found " . Dumper($structure);
+        }
+        elsif (ref($structure) ne 'HASH') {
+            die "So far only hashref are supported";
+        }
+    }
+
     if ($string) {
         @terms = grep { $_ } split(/\s+/, $string);
     }
     $self->search_terms(\@terms);
+    $self->search_structure($structure || {});
     return $self->_do_search;
 }
 
@@ -267,17 +308,27 @@ sub _do_search {
     my $self = shift;
 
     my @terms = @{ $self->search_terms };
+    my %additional = %{  $self->search_structure };
     my $query;
     if (@terms) {
         my @queries;
         foreach my $field (@{ $self->search_fields }) {
-            push @queries, { $field => [ -and =>  @terms ] };
+            push @queries, {
+                            $field => [ -and =>  @terms ],
+                            %additional,
+                           };
         }
         $query = WebService::Solr::Query->new(\@queries);
+        # even if the structure looks correct, the query isn't build properly
+        # print Dumper($query);
     }
     else {
         # catch all
-        $query = WebService::Solr::Query->new( { '*' => \'*' } );
+        my $query_struct = { '*' => \'*' };
+        if (%additional) {
+            $query_struct = \%additional;
+        }
+        $query = WebService::Solr::Query->new($query_struct);
     }
     # save the debug info
     $self->_set_search_string($query->stringify);
@@ -300,7 +351,9 @@ sub _do_search {
             foreach my $facet (@{ $self->facets }) {
                 if (my $condition = $filters->{$facet}) {
                     push @fq,
-                      WebService::Solr::Query->new({ $facet => $condition });
+                      WebService::Solr::Query->new({ $facet => $condition,
+                                                     %additional,
+                                                   });
                 }
             }
             if (@fq) {
@@ -474,6 +527,7 @@ sub reset_object {
     $self->_set_search_string(undef);
     $self->filters({});
     $self->search_terms([]);
+    $self->search_structure({});
 }
 
 sub search_from_url {
