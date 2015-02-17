@@ -84,10 +84,17 @@ $solr->search_from_url('/manufacturer/pikeur');
 
 # this test is fragile because it depends on the db
 
-is_deeply($solr->paginator,
+my %paginator = %{$solr->paginator};
+
+my $lastpage = delete $paginator{last};
+
+like $lastpage, qr{manufacturer/pikeur/page/\d+}, "Found last page";
+
+
+
+is_deeply(\%paginator,
           {
            next => 'manufacturer/pikeur/page/2',
-           last => 'manufacturer/pikeur/page/32',
            'items' => [
                        {
                         'current' => 1,
