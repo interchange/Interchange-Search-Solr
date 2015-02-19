@@ -65,6 +65,10 @@ An arrayref with the indexed fields to search. Defaults to:
 
   [qw/sku name description/]
 
+=head2 return_fields
+
+An arrayref of indexed fields to return. All by default.
+
 =head2 facets
 
 A string or an arrayref with the fields which will generate a facet.
@@ -210,6 +214,12 @@ has sorting_direction => (is => 'rw',
                           default => sub { 'desc' },
                          );
 
+has return_fields => (is => 'rw',
+                      isa => sub { die unless ref($_[0]) eq 'ARRAY' },
+                     );
+
+
+
 sub results {
     my $self = shift;
     my @matches;
@@ -345,10 +355,38 @@ sub _do_search {
         }
         $query = WebService::Solr::Query->new($query_struct);
     }
-    # save the debug info
-    $self->_set_search_string($query->stringify);
+    return $self->execute_query($query);
+}
 
+=head2 execute_query($query)
+
+Accept either a raw string with the query or a WebService::Solr::Query
+object and run the query against the Solr service.
+
+If no query is provided, a wildcard search is performed.
+
+=cut
+
+sub execute_query {
+    my ($self, $query) = @_;
+    $query ||= '(*:*)';
+    if (ref($query)) {
+        $self->_set_search_string($query->stringify);
+    }
+    else {
+        $self->_set_search_string($query);
+    }
+    # save the debug info
+    my %params = $self->construct_params;
+    my $res = $self->solr_object->search($query, \%params);
+    $self->_set_response($res);
+    return $res;
+}
+
+
+sub construct_params {
     # set start and rows
+    my $self = shift;
     my %params = (
                   start => $self->_start_row,
                   rows => $self->_rows
@@ -366,8 +404,8 @@ sub _do_search {
             foreach my $facet (@{ $self->facets }) {
                 if (my $condition = $filters->{$facet}) {
                     push @fq,
-                      WebService::Solr::Query->new({ $facet => $condition,
-                                                     %additional,
+                      WebService::Solr::Query->new({
+                                                    $facet => $condition,
                                                    });
                 }
             }
@@ -379,9 +417,10 @@ sub _do_search {
     if (my $sort_by = $self->sorting) {
         $params{sort} = join(' ', $sort_by, $self->sorting_direction);
     }
-    my $res = $self->solr_object->search($query, \%params);
-    $self->_set_response($res);
-    return $res;
+    if (my $fl = $self->return_fields) {
+        $params{fl} = join(',', @$fl);
+    }
+    return %params;
 }
 
 sub _start_row {
