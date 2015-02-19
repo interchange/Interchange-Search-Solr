@@ -18,11 +18,11 @@ Interchange::Search::Solr -- Solr query encapsulation
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 =head1 SYNOPSIS
@@ -140,6 +140,16 @@ The terms used for the current search.
 
 The perl data structure used for the current search.
 
+=head2 sorting
+
+The field used to sort the result (optional and defaults to score, as
+per Solr doc).
+
+=head2 sorting_direction
+
+The direction used by the sorting, when C<sorting> is specified.
+Default to 'desc'.
+
 =cut
 
 has solr_url => (is => 'ro',
@@ -194,6 +204,11 @@ has search_structure => (is => 'rw',
                          default => sub { return {} },
                         );
 
+has sorting => (is => 'rw');
+has sorting_direction => (is => 'rw',
+                          isa => sub { die unless $_[0] =~ m/\A(asc|desc)\z/ },
+                          default => sub { 'desc' },
+                         );
 
 sub results {
     my $self = shift;
@@ -361,7 +376,9 @@ sub _do_search {
             }
         }
     }
-
+    if (my $sort_by = $self->sorting) {
+        $params{sort} = join(' ', $sort_by, $self->sorting_direction);
+    }
     my $res = $self->solr_object->search($query, \%params);
     $self->_set_response($res);
     return $res;
@@ -847,6 +864,16 @@ sub terms_found {
     }
     return \%out;
     
+}
+
+=head2 version
+
+Return the version of this module.
+
+=cut
+
+sub version {
+    return $VERSION;
 }
 
 
