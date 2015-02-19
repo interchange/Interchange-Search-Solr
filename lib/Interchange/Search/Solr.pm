@@ -218,7 +218,9 @@ has return_fields => (is => 'rw',
                       isa => sub { die unless ref($_[0]) eq 'ARRAY' },
                      );
 
-
+has global_conditions => (is => 'rw',
+                          isa => sub { die unless ref($_[0]) eq 'HASH' }
+                         );
 
 sub results {
     my $self = shift;
@@ -369,16 +371,33 @@ If no query is provided, a wildcard search is performed.
 
 sub execute_query {
     my ($self, $query) = @_;
-    $query ||= '(*:*)';
+    my $querystring = '(*:*)';
     if (ref($query)) {
-        $self->_set_search_string($query->stringify);
+        $querystring = $query->stringify;
     }
-    else {
-        $self->_set_search_string($query);
+    elsif ($query) {
+        $querystring = $query;
+    }
+
+    if (my $global = $self->global_conditions) {
+        my @conditions = ($querystring);
+        foreach my $condition (keys %$global) {
+            my $string;
+            if (ref($global->{$condition}) eq 'SCALAR') {
+                $string = ${$global->{$condition}};
+            }
+            else {
+                $string = '"' .
+                  WebService::Solr::Query->escape($global->{$condition}) . '"';
+            }
+            push @conditions, qq{($condition:$string)};
+        }
+        $querystring = '(' . join(' AND ', @conditions) . ')';
     }
     # save the debug info
+    $self->_set_search_string($querystring);
     my %params = $self->construct_params;
-    my $res = $self->solr_object->search($query, \%params);
+    my $res = $self->solr_object->search($querystring, \%params);
     $self->_set_response($res);
     return $res;
 }
