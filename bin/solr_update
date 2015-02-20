@@ -25,6 +25,7 @@ my ($solr_url) = @ARGV;
 unless ($solr_url) {
     if ($ENV{SOLR_URL}) {
         $solr_url = $ENV{SOLR_URL};
+        print "Using solr url $solr_url from environment\n";
     }
     else {
         die "$0: need Solr url or SOLR_URL's environment\n";
