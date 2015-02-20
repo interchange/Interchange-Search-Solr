@@ -935,6 +935,45 @@ sub version {
 }
 
 
+=head2 breadcrumbs
+
+Return a list of hashrefs with C<uri> and C<label> suitable to compose
+a breadcrumb for the current search.
+
+=cut
+
+sub breadcrumbs {
+    my $self = shift;
+    my $words = $self->search_terms;
+    my $filters = $self->filters;
+    # always add the root
+    my @pieces;
+    my $current_uri = 'words';
+    foreach my $word (@$words) {
+        $current_uri .= "/$word";
+        push @pieces, {
+                       uri => $current_uri,
+                       label => $word,
+                      };
+    }
+    if (%$filters) {
+        foreach my $facet (@{ $self->facets }) {
+            if (my $terms = $filters->{$facet}) {
+                $current_uri .= "/$facet";
+                foreach my $term (@$terms) {
+                    $current_uri .= "/$term";
+                    push @pieces, {
+                                   uri => $current_uri,
+                                   label => $term,
+                                  };
+                }
+            }
+        }
+    }
+    return @pieces;
+}
+
+
 =head1 AUTHOR
 
 Marco Pessotto, C<< <melmothx at gmail.com> >>
