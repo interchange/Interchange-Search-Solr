@@ -50,14 +50,17 @@ is_deeply([$solr->breadcrumbs],
            },
            {
             uri => 'words/the/shiny/boot/suchbegriffe/xxxxx',
+            facet => 'suchbegriffe',
             label => 'xxxxx',
            },
            {
             uri => 'words/the/shiny/boot/suchbegriffe/xxxxx/yyyy',
+            facet => 'suchbegriffe',
             label => 'yyyy',
            },
            {
             uri => 'words/the/shiny/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
+            facet => 'manufacturer',
             label => 'pikeur',
            }
           ], "Breadcrumbs ok");

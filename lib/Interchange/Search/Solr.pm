@@ -940,6 +940,9 @@ sub version {
 Return a list of hashrefs with C<uri> and C<label> suitable to compose
 a breadcrumb for the current search.
 
+If the breadcrumb points to a facet, the facet name is stored in the
+C<facet> key.
+
 =cut
 
 sub breadcrumbs {
@@ -965,6 +968,7 @@ sub breadcrumbs {
                     push @pieces, {
                                    uri => $current_uri,
                                    label => $term,
+                                   facet => $facet,
                                   };
                 }
             }
