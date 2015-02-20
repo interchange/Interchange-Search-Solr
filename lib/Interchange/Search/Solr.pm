@@ -286,6 +286,11 @@ structure, and they will get AND'ed.
 After calling this method you can inspect the response using the
 following methods:
 
+=head2 results
+
+Returns reference to list of results, each result is a hash
+reference.
+
 =head2 skus_found
 
 Returns just a plain list of skus.
@@ -402,6 +407,11 @@ sub execute_query {
     return $res;
 }
 
+=head2 construct_params
+
+Constructs parameters for the search.
+
+=cut
 
 sub construct_params {
     # set start and rows
