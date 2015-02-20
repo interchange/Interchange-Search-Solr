@@ -12,7 +12,7 @@ use Getopt::Long;
 use Interchange::Search::Solr::UpdateIndex;
 
 # commandline options
-my (%opts, $mode, $solr_url);
+my (%opts, $mode);
 
 my $whandler = $SIG{__WARN__};
 $SIG{__WARN__} = sub {print STDERR "$0: @_";};
@@ -20,11 +20,16 @@ unless (GetOptions (\%opts, 'delta', 'full', 'clear')) {
     exit 1;
 }
 
-if (@ARGV != 1) {
-    die "$0: need Solr url.\n";
-}
+my ($solr_url) = @ARGV;
 
-$solr_url = shift;
+unless ($solr_url) {
+    if ($ENV{SOLR_URL}) {
+        $solr_url = $ENV{SOLR_URL};
+    }
+    else {
+        die "$0: need Solr url or SOLR_URL's environment\n";
+    }
+}
 
 # determine mode
 if ($opts{delta}) {
