@@ -7,6 +7,8 @@ README
 t/00-load.t
 t/basic.t
 t/boilerplate.t
+t/breadcrumbs.t
+t/complex-query.t
 t/encoding.t
 t/filters.t
 t/manifest.t
