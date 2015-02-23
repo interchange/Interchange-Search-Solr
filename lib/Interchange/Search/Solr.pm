@@ -912,6 +912,21 @@ The structure looks like this:
            ],
  }
 
+See also:
+
+=over 4
+
+=item clear_words_link
+
+Which return the reset link
+
+=item clear_words_link
+
+Which returns a list of hashrefs with C<uri> and C<label> for each
+word to remove.
+
+=back
+
 =cut
 
 sub terms_found {
@@ -985,6 +1000,32 @@ sub breadcrumbs {
         }
     }
     return @pieces;
+}
+
+sub clear_words_link {
+    my $self = shift;
+    if (my $struct = $self->terms_found) {
+        return $struct->{reset};
+    }
+    else {
+        return;
+    }
+}
+
+sub remove_word_links {
+    my $self = shift;
+    my @out;
+    if (my $struct = $self->terms_found) {
+        if (my $terms = $struct->{terms}) {
+            foreach my $term (@$terms) {
+                push @out, {
+                            uri => $term->{url},
+                            label => $term->{term},
+                           };
+            }
+        }
+    }
+    return @out;
 }
 
 

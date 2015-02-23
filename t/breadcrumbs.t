@@ -22,7 +22,7 @@ if ($ENV{SOLR_URL}) {
     $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL},
                                            search_fields => \@localfields,
                                           );
-    plan tests => 2;
+    plan tests => 4;
 }
 else {
     plan skip_all => "Please set environment variable SOLR_URL.";
@@ -64,3 +64,22 @@ is_deeply([$solr->breadcrumbs],
             label => 'pikeur',
            }
           ], "Breadcrumbs ok");
+
+is_deeply([$solr->remove_word_links],
+          [
+           {
+            uri => 'words/shiny/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
+            label => 'the',
+           },
+           {
+            uri => 'words/the/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
+            label => 'shiny',
+           },
+           {
+            uri => 'words/the/shiny/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
+            label => 'boot',
+           },
+          ], "Remove words links ok");
+
+is $solr->clear_words_link, 'suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
+  "Clear words link ok";
