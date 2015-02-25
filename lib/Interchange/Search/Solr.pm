@@ -584,10 +584,19 @@ sub _build_xml_add_op {
 
     while (my ($name, $value) = each %$data) {
         if (defined $value) {
-            my $el_field = $doc->createElement('field');
-            $el_field->setAttribute(name => $name);
-            $el_field->appendText($value);
-            $el_doc->addChild($el_field);
+            my @values;
+            if (ref($value) eq 'ARRAY') {
+                @values = @$value;
+            }
+            else {
+                @values = ($value);
+            }
+            foreach my $v (@values) {
+                my $el_field = $doc->createElement('field');
+                $el_field->setAttribute(name => $name);
+                $el_field->appendText($v);
+                $el_doc->addChild($el_field);
+            }
         }
     }
 
