@@ -18,11 +18,11 @@ Interchange::Search::Solr -- Solr query encapsulation
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 
 =head1 SYNOPSIS
@@ -573,33 +573,42 @@ sub maintainer_update {
 # builds XML for add maintainer option
 
 sub _build_xml_add_op {
-    my ($self, $data) = @_;
+    my ($self, $input) = @_;
     my $doc = XML::LibXML::Document->new;
     my $el_add = $doc->createElement('add');
-
+    my $list;
     $doc->addChild($el_add);
 
-    my $el_doc = $doc->createElement('doc');
-    $el_add->addChild($el_doc);
+    if (ref($input) eq 'ARRAY') {
+        $list = $input;
+    }
+    elsif (ref($input) eq 'HASH') {
+        $list = [ $input ];
+    }
+    else {
+        die "Bad usage: input should be an arrayref or an hashref";
+    }
 
-    while (my ($name, $value) = each %$data) {
-        if (defined $value) {
-            my @values;
-            if (ref($value) eq 'ARRAY') {
-                @values = @$value;
-            }
-            else {
-                @values = ($value);
-            }
-            foreach my $v (@values) {
-                my $el_field = $doc->createElement('field');
-                $el_field->setAttribute(name => $name);
-                $el_field->appendText($v);
-                $el_doc->addChild($el_field);
+    foreach my $data (@$list) {
+        my $el_doc = $doc->createElement('doc');
+        $el_add->addChild($el_doc);
+        while (my ($name, $value) = each %$data) {
+            if (defined $value) {
+                my @values;
+                if (ref($value) eq 'ARRAY') {
+                    @values = @$value;
+                } else {
+                    @values = ($value);
+                }
+                foreach my $v (@values) {
+                    my $el_field = $doc->createElement('field');
+                    $el_field->setAttribute(name => $name);
+                    $el_field->appendText($v);
+                    $el_doc->addChild($el_field);
+                }
             }
         }
     }
-
     return $doc->toString;
 }
 
