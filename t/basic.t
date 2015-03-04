@@ -37,12 +37,12 @@ ok($solr->solr_object, "Internal Solr instance ok");
 $solr->start(3);
 $solr->rows(6);
 $solr->search();
-is ($solr->search_string, '(*:*)', "Empty search returns everything");
+is ($solr->search_string, '*', "Empty search returns everything");
 ok ($solr->num_found, "Found results") and diag "Results: " . $solr->num_found;
 $solr->search("the boot");
 ok ($solr->response->ok);
 
-like $solr->search_string, qr/\(\(sku:"the"\) AND \(sku:"boot"\)\)/,
+like $solr->search_string, qr/\(the\* AND boot\*\)/,
   "Search string interpolated" . $solr->search_string;
 
 is_deeply ($solr->search_terms, [qw/the boot/], "Search terms saved");

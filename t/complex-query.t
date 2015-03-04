@@ -6,6 +6,7 @@ use warnings;
 use Interchange::Search::Solr;
 use Data::Dumper;
 use Test::More;
+use WebService::Solr::Query;
 
 my $solr;
 
@@ -42,10 +43,8 @@ my $res = $solr->search({ inactive => 0 });
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
 $res = $solr->search({ inactive => 1 });
-# given that on this instance we don't index inactive product, we have
-# 0 results.
 ok($res->ok, $solr->search_string);
-ok !$solr->num_found, "found " . $solr->num_found;
+ok $solr->num_found, "found inactive products " . $solr->num_found;
 
 $res = $solr->search({ comment_en => 'knitted hat', inactive => 0 });
 ok($res->ok, $solr->search_string);
@@ -53,22 +52,13 @@ ok $solr->num_found, "found " . $solr->num_found;
 
 $res = $solr->search({ comment_en => 'knitted hat', inactive => 1 });
 ok($res->ok, $solr->search_string);
-ok !$solr->num_found, "found " . $solr->num_found;
-
-$res = $solr->search('knitted hat', { inactive => 1 });
-ok($res->ok, $solr->search_string);
-ok !$solr->num_found, "found " . $solr->num_found;
-
+ok $solr->num_found, "found " . $solr->num_found;
 
 $res = $solr->search('knitted hat');
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
 my $hats = $solr->num_found;
 
-# this should be equivalent
-$res = $solr->search('knitted hat', { inactive => 0 });
-ok($res->ok, $solr->search_string);
-is $solr->num_found, $hats, "found " . $solr->num_found;
 
 done_testing;
 

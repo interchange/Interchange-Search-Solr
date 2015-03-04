@@ -142,7 +142,8 @@ The terms used for the current search.
 
 =head2 search_structure
 
-The perl data structure used for the current search.
+The perl data structure used for the current search. It's passed to
+L<Webservice::Solr::Query> for stringification.
 
 =head2 sorting
 
@@ -203,10 +204,7 @@ has search_terms  => (is => 'rw',
                       default => sub { return [] },
                      );
 
-has search_structure => (is => 'rw',
-                         isa => sub { die unless ref($_[0]) eq 'HASH' },
-                         default => sub { return {} },
-                        );
+has search_structure => (is => 'rw');
 
 has sorting => (is => 'rw');
 has sorting_direction => (is => 'rw',
@@ -268,20 +266,17 @@ sub _build_solr_object {
 
 =head1 METHODS
 
-=head2 search( [ $string, [ $structure ] ])
+=head2 search( [ $string_or$structure ] ])
 
 Run a search and return a L<WebService::Solr::Response> object.
 
-The method accept zero, one or two arguments.
+The method accept zero or one argument.
 
-With no arguments, run a full wildcard search ('*' => '*');
+With no arguments, run a full wildcard search.
 
 With one argument, if it's a string, run the search against all the
 indexed fields. If it's a structure, build a query for it. The syntax
 of the structure is described at L<WebService::Solr::Query>.
-
-With two argument, the first should be the string, the second the
-structure, and they will get AND'ed.
 
 After calling this method you can inspect the response using the
 following methods:
@@ -306,33 +301,21 @@ Return true if there are more pages
 =cut
 
 sub search {
-    my ($self, $string, $structure) = @_;
+    my ($self, $string) = (shift, shift);
+    die "Extra parameter found" if (@_);
+    my $structure;
     # here we just split the terms, set C<search_terms>, and call
     # _do_search.
-    if ($string and !$structure) {
-        if (ref($string)) {
-            $structure = $string;
-            $string = undef;
-        }
+    if ($string && ref($string)) {
+        $structure = $string;
+        $string = undef;
     }
     my @terms;
-    if ($string and ref($string)) {
-        die "Bad usage: expecting a string and found " . Dumper($string);
-    }
-    if ($structure) {
-        if (!ref($structure)) {
-            die "Bad usage: expecting a reference and found " . Dumper($structure);
-        }
-        elsif (ref($structure) ne 'HASH') {
-            die "So far only hashref are supported";
-        }
-    }
-
     if ($string) {
         @terms = grep { $_ } split(/\s+/, $string);
     }
     $self->search_terms(\@terms);
-    $self->search_structure($structure || {});
+    $self->search_structure($structure);
     return $self->_do_search;
 }
 
@@ -340,27 +323,21 @@ sub _do_search {
     my $self = shift;
 
     my @terms = @{ $self->search_terms };
-    my %additional = %{  $self->search_structure };
-    my $query;
+
+    my $query = '';
+
     if (@terms) {
-        my @queries;
-        foreach my $field (@{ $self->search_fields }) {
-            push @queries, {
-                            $field => [ -and =>  @terms ],
-                            %additional,
-                           };
-        }
-        $query = WebService::Solr::Query->new(\@queries);
+        my @escaped = map { WebService::Solr::Query->escape($_) . '*' } @terms;
+        $query = '(' . join(' AND ', @escaped) . ')';
         # even if the structure looks correct, the query isn't build properly
         # print Dumper($query);
     }
     else {
         # catch all
-        my $query_struct = { '*' => \'*' };
-        if (%additional) {
-            $query_struct = \%additional;
+        if (my $structure = $self->search_structure) {
+            $query = WebService::Solr::Query->new($structure);
         }
-        $query = WebService::Solr::Query->new($query_struct);
+
     }
     return $self->execute_query($query);
 }
@@ -376,7 +353,7 @@ If no query is provided, a wildcard search is performed.
 
 sub execute_query {
     my ($self, $query) = @_;
-    my $querystring = '(*:*)';
+    my $querystring = '*';
     if (ref($query)) {
         $querystring = $query->stringify;
     }
@@ -449,6 +426,9 @@ sub construct_params {
     if (my $fl = $self->return_fields) {
         $params{fl} = join(',', @$fl);
     }
+    # if using edifmax
+    $params{qf} = join(' ', @{ $self->search_fields });
+    $params{defType} = 'edismax';
     return %params;
 }
 
@@ -630,7 +610,7 @@ sub reset_object {
     $self->_set_search_string(undef);
     $self->filters({});
     $self->search_terms([]);
-    $self->search_structure({});
+    $self->search_structure(undef);
 }
 
 sub search_from_url {
