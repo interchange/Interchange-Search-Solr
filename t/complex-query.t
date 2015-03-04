@@ -17,6 +17,7 @@ my @localfields = (qw/sku
                       comment_se comment_es
                       description_en description_fr
                       description_nl description_de
+                      inactive
                       description_se description_es/);
 
 if ($ENV{SOLR_URL}) {
@@ -45,19 +46,50 @@ ok $solr->num_found, "found " . $solr->num_found;
 $res = $solr->search({ inactive => 1 });
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found inactive products " . $solr->num_found;
+scan_field($solr->results, inactive => 1);
 
 $res = $solr->search({ comment_en => 'knitted hat', inactive => 0 });
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
+scan_field($solr->results, inactive => 0);
 
 $res = $solr->search({ comment_en => 'knitted hat', inactive => 1 });
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
+scan_field($solr->results, inactive => 1);
 
-$res = $solr->search('knitted hat');
+
+# wildcard
+
+$solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL},
+                                       search_fields => \@localfields,
+                                       global_conditions => { inactive => 0 },
+                                      );
+
+$res = $solr->search('');
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
-my $hats = $solr->num_found;
+scan_field($solr->results, inactive => 0);
+
+$solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL},
+                                       search_fields => \@localfields,
+                                       global_conditions => { inactive => 1 },
+                                      );
+$res = $solr->search('hat und');
+ok($res->ok, $solr->search_string);
+ok $solr->num_found, "found " . $solr->num_found;
+scan_field($solr->results, inactive => 1);
+
+$solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL},
+                                       search_fields => \@localfields,
+                                       global_conditions => { inactive => 0 },
+                                      );
+$res = $solr->search('hat und');
+ok($res->ok, $solr->search_string);
+ok $solr->num_found, "found " . $solr->num_found;
+scan_field($solr->results, inactive => 0);
+
+
 
 
 done_testing;
@@ -71,3 +103,10 @@ sub get_query {
 }
 
 
+sub scan_field {
+    my ($results, $field, $value) = @_;
+    ok(@$results, "Results found");
+    my @not_matching = grep { $_->{$field} ne $value } @$results;
+    ok(!@not_matching, "All $field are <$value>");
+    
+}
