@@ -938,7 +938,7 @@ See also:
 
 Which return the reset link
 
-=item remove_words_link
+=item remove_word_links
 
 Which returns a list of hashrefs with C<uri> and C<label> for each
 word to remove.
