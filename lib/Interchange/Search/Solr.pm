@@ -873,9 +873,9 @@ sub paginator {
     my $page_size = $self->rows;
     my $page_scope = $self->page_scope;
     my $total = $self->num_found;
-    return unless $total;
+    return undef unless $total;
     my $total_pages = POSIX::ceil($total / $page_size);
-    return if $total_pages < 2;
+    return undef if $total_pages < 2;
 
     # compute the scope
     my $start = ($page - $page_scope > 0) ? ($page - $page_scope) : 1;
