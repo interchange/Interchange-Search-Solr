@@ -18,11 +18,11 @@ Interchange::Search::Solr -- Solr query encapsulation
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 
 =head1 SYNOPSIS
@@ -654,11 +654,15 @@ sub _parse_url {
     # nothing to do if there are no fragments
     return unless @fragments;
 
+    my (@terms, %filters);
     # the first keyword we need is the optional "words"
     if ($fragments[0] eq 'words') {
-        # just discards and check if we have something
+        # just discards and check if we have something. This could
+        # also mean that the next word is not a keyword.
         shift @fragments;
-        return unless @fragments;
+        if (@fragments) {
+            push @terms, shift @fragments;
+        }
     }
 
     # the page is the last fragment, so check that
@@ -678,15 +682,16 @@ sub _parse_url {
             $self->_set_start_from_page;
         }
     }
-    return unless @fragments;
-    # then we lookup until the first keyword
-    my @keywords = @{ $self->facets };
-    my ($current_filter, @terms, %filters);
+    my $current_filter;
     while (@fragments) {
 
-        my $chunk = shift (@fragments);
+        my $chunk = shift @fragments;
 
-        if (grep { $_ eq $chunk } @keywords) {
+        # we lookup until the first keyword, but only if there is
+        # non-keywords after that.
+        if ($self->_fragment_is_keyword($chunk) and
+            @fragments and
+            !$self->_fragment_is_keyword($fragments[0])) {
             # chunk is actually a keyword. Set the flag, prepare the
             # array and move on.
             $current_filter = $chunk;
@@ -705,8 +710,14 @@ sub _parse_url {
     }
     $self->search_terms(\@terms);
     $self->filters(\%filters);
-    return unless @fragments;
 }
+
+sub _fragment_is_keyword {
+    my ($self, $fragment) = @_;
+    return unless defined $fragment;
+    return grep { $_ eq $fragment } @{ $self->facets };
+}
+
 
 sub _set_start_from_page {
     my $self = shift;
