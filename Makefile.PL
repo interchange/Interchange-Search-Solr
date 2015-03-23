@@ -1,4 +1,3 @@
-use 5.010001;
 use strict;
 use warnings FATAL => 'all';
 use ExtUtils::MakeMaker;
@@ -11,7 +10,6 @@ WriteMakefile(
     LICENSE          => 'Artistic_2_0',
     PL_FILES         => {},
     EXE_FILES        => ['bin/solr_update'],
-    MIN_PERL_VERSION => 5.010001,
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
     },

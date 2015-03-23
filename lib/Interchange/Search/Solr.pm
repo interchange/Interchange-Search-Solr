@@ -1,6 +1,5 @@
 package Interchange::Search::Solr;
 
-use 5.010001;
 use strict;
 use warnings;
 
