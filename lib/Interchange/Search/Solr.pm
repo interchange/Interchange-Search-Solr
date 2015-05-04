@@ -64,6 +64,11 @@ An arrayref with the indexed fields to search. Defaults to:
 
   [qw/sku name description/]
 
+You can add boost to fields appending a float with a caret.
+
+  [qw/ sku^5.0 name^1.0 description^0.4 /]
+
+
 =head2 return_fields
 
 An arrayref of indexed fields to return. All by default.
@@ -160,6 +165,19 @@ has solr_url => (is => 'ro',
                  required => 1);
 
 has input_encoding => (is => 'ro');
+
+
+=head2 wild_matching
+
+By default, a search term produce a query with a wildcard appended. So
+searching for 1234 will query 1234*. With this option set to true, a
+wildcard is prepended as well, querying for *1234* instead).
+
+=cut
+
+
+has wild_matching => (is => 'ro',
+                      default => sub { 0 });
 
 has search_fields => (is => 'ro',
                       default => sub {
@@ -321,12 +339,16 @@ sub search {
 sub _do_search {
     my $self = shift;
 
-    my @terms = @{ $self->search_terms };
+    my @terms = grep { /\w/ } @{ $self->search_terms };
 
     my $query = '';
+    my $wild_match = '';
+    if ($self->wild_matching) {
+        $wild_match = '*';
+    }
 
     if (@terms) {
-        my @escaped = map { WebService::Solr::Query->escape($_) . '*' } @terms;
+        my @escaped = map { $wild_match . WebService::Solr::Query->escape($_) . '*' } @terms;
         $query = '(' . join(' AND ', @escaped) . ')';
         # even if the structure looks correct, the query isn't build properly
         # print Dumper($query);
