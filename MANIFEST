@@ -9,8 +9,10 @@ t/basic.t
 t/breadcrumbs.t
 t/complex-query.t
 t/encoding.t
+t/facet-as-word-bug.t
 t/filters.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
 t/query.t
+t/serialize-data.t
