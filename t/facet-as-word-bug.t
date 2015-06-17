@@ -66,7 +66,7 @@ is $solr->current_search_to_url, "words/size/XL/color/banana",
   "url built correctly";
 
 $solr->search_from_url('/size/XL/color/banana');
-$solr->response->ok, "response ok";
+$solr->response->ok;
 is_deeply $solr->search_terms, [], "no words, only filters";
 is_deeply $solr->filters, { color => [qw/banana/],
                             size => [qw/XL/],
