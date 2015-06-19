@@ -23,6 +23,9 @@ Version 0.08
 
 our $VERSION = '0.08';
 
+=head1 DESCRIPTION
+
+Exposes Solr search API in a programmer-friendly way.
 
 =head1 SYNOPSIS
 
