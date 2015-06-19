@@ -1,3 +1,4 @@
+bin/solr_update
 Changes
 lib/Interchange/Search/Solr.pm
 lib/Interchange/Search/Solr/UpdateIndex.pm
