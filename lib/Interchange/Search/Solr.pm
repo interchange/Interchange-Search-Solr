@@ -1068,12 +1068,8 @@ Marco Pessotto, C<< <melmothx at gmail.com> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-calevo-search-solr at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Interchange-Search-Solr>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
+Please report any bugs or feature requests to
+L<https://github.com/interchange/Interchange-Search-Solr/issues>.
 
 =head1 SUPPORT
 
@@ -1086,9 +1082,9 @@ You can also look for information at:
 
 =over 4
 
-=item * RT: CPAN's request tracker (report bugs here)
+=item * Github
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Interchange-Search-Solr>
+L<https://github.com/interchange/Interchange-Search-Solr>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
@@ -1098,9 +1094,9 @@ L<http://annocpan.org/dist/Interchange-Search-Solr>
 
 L<http://cpanratings.perl.org/d/Interchange-Search-Solr>
 
-=item * Search CPAN
+=item * META CPAN
 
-L<http://search.cpan.org/dist/Interchange-Search-Solr/>
+L<https://metacpan.org/pod/Interchange::Search::Solr>
 
 =back
 
