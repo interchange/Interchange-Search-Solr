@@ -1,5 +1,20 @@
 Revision history for Interchange-Search-Solr
 
+0.09 Fri Jun 19 10:24:29 2015 CEST
+
+	 [BUG FIXES]
+
+	 * Add solr_update script to MANIFEST (Stefan Hornburg).
+
+	 [ENHANCEMENTS]
+
+	 * Add meta resources to Makefile.PL (Stefan Hornburg).
+
+	 [DOCUMENTATION]
+
+	 * Add short description to main POD (Stefan Hornburg).
+     * Update Github and CPAN links in main POD (Stefan Hornburg).
+
 0.08 Wed Jun 17 15:18:08 2015 CEST
 
 	* Initial release.

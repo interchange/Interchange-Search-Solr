@@ -2,7 +2,10 @@ NAME
     Interchange::Search::Solr -- Solr query encapsulation
 
 VERSION
-    Version 0.08
+    Version 0.09
+
+DESCRIPTION
+    Exposes Solr search API in a programmer-friendly way.
 
 SYNOPSIS
     Quick summary of what the module does.
@@ -251,11 +254,8 @@ AUTHOR
     Marco Pessotto, `<melmothx at gmail.com>'
 
 BUGS
-    Please report any bugs or feature requests to `bug-calevo-search-solr at
-    rt.cpan.org', or through the web interface at
-    http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Interchange-Search-Solr.
-    I will be notified, and then you'll automatically be notified of
-    progress on your bug as I make changes.
+    Please report any bugs or feature requests to
+    https://github.com/interchange/Interchange-Search-Solr/issues.
 
 SUPPORT
     You can find documentation for this module with the perldoc command.
@@ -264,8 +264,8 @@ SUPPORT
 
     You can also look for information at:
 
-    * RT: CPAN's request tracker (report bugs here)
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Interchange-Search-Solr
+    * Github
+        https://github.com/interchange/Interchange-Search-Solr
 
     * AnnoCPAN: Annotated CPAN documentation
         http://annocpan.org/dist/Interchange-Search-Solr
@@ -273,8 +273,8 @@ SUPPORT
     * CPAN Ratings
         http://cpanratings.perl.org/d/Interchange-Search-Solr
 
-    * Search CPAN
-        http://search.cpan.org/dist/Interchange-Search-Solr/
+    * META CPAN
+        https://metacpan.org/pod/Interchange::Search::Solr
 
 ACKNOWLEDGEMENTS
 LICENSE AND COPYRIGHT
