@@ -23,4 +23,11 @@ WriteMakefile(
                  },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Interchange-Search-Solr-*' },
+	    META_MERGE        => {
+        resources => {
+            repository  => 'https://github.com/interchange/Interchange-Search-Solr.git',
+            bugtracker => 'https://github.com/interchange/Interchange-Search-Solr/issues',
+            IRC => 'irc://irc.freenode.net/#interchange',
+        },
+    },
 );
