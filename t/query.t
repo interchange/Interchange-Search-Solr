@@ -27,14 +27,14 @@ else {
     plan skip_all => "Please set environment variable SOLR_URL.";
 }
 
-$solr->search_from_url('/the/boot/i/like/suchbegriffe/xxxxx/yyyy/manufacturer/Pikeur/page/2');
+$solr->search_from_url('/the/boot/i/like/suchbegriffe/xxxxx/yyyy/manufacturer/piko/page/2');
 
 is_deeply($solr->search_terms, [qw/the boot i like/], "Search terms picked up ok");
 is($solr->start, 10, "Start computed correctly"), # we have to start at 0
 is($solr->page, 2, "Page picked up");
 is_deeply($solr->filters, {
                            suchbegriffe => [qw/xxxxx yyyy/],
-                           manufacturer => [qw/Pikeur/],
+                           manufacturer => [qw/piko/],
                           });
 
 is (scalar($solr->skus_found), 0, "No sku found with this query");
@@ -43,7 +43,7 @@ is (scalar($solr->skus_found), 0, "No sku found with this query");
 $solr->facets([qw/manufacturer suchbegriffe/]);
 
 is $solr->current_search_to_url,
-  'words/the/boot/i/like/manufacturer/Pikeur/suchbegriffe/xxxxx/yyyy/page/2',
+  'words/the/boot/i/like/manufacturer/piko/suchbegriffe/xxxxx/yyyy/page/2',
   "Url resolves correctly";
 
 
@@ -56,15 +56,17 @@ is_deeply([ $solr->skus_found] , \@skus, "same result");
 
 is ($solr->url_builder([qw/pinco pallino/],
                        {
-                        manufacturer => [qw/Pikeur/]
+                        manufacturer => [qw/piko/]
                        }, 3),
-    'words/pinco/pallino/manufacturer/Pikeur/page/3',
+    'words/pinco/pallino/manufacturer/piko/page/3',
     "Url builder works");
 
-$solr->search_from_url('/shirt/manufacturer/Pikeur');
+$solr->rows(3);
+$solr->search_from_url('/shirt/manufacturer/piko');
 @skus = $solr->skus_found;
-ok (scalar(@skus), "Found some results with /shirt/manufacturer/Pikeur")
+ok (scalar(@skus), "Found some results with /shirt/manufacturer/piko")
   or die "Search is broken";
+diag "Found " . scalar(@skus) . " skus";
 ok ($solr->has_more, "And has more");
 ok ($solr->num_found, "Total: " . $solr->num_found);
 
@@ -82,7 +84,7 @@ $solr->search_from_url('/');
 
 like $links[0], qr{.+/.+}, "Found the filter link $links[0]";
 
-$solr->search_from_url('/manufacturer/Pikeur');
+$solr->search_from_url('/manufacturer/piko');
 
 # this test is fragile because it depends on the db
 
@@ -90,39 +92,31 @@ my %paginator = %{$solr->paginator};
 
 my $lastpage = delete $paginator{last};
 
-like $lastpage, qr{manufacturer/Pikeur/page/\d+}, "Found last page";
+like $lastpage, qr{manufacturer/piko/page/\d+}, "Found last page";
 
 
 
 is_deeply(\%paginator,
           {
-           next => 'manufacturer/Pikeur/page/2',
+           next => 'manufacturer/piko/page/2',
            'items' => [
                        {
                         'current' => 1,
                         name => 1,
-                        'url' => 'manufacturer/Pikeur'
+                        'url' => 'manufacturer/piko'
                        },
                        {
-                        'url' => 'manufacturer/Pikeur/page/2',
+                        'url' => 'manufacturer/piko/page/2',
                         name => 2,
                        },
                        {
-                        'url' => 'manufacturer/Pikeur/page/3',
+                        'url' => 'manufacturer/piko/page/3',
                         name => 3,
                        },
                        {
-                        'url' => 'manufacturer/Pikeur/page/4',
+                        'url' => 'manufacturer/piko/page/4',
                         name => 4,
                        },
-                       {
-                        'url' => 'manufacturer/Pikeur/page/5',
-                        name => 5,
-                       },
-                       {
-                        'url' => 'manufacturer/Pikeur/page/6',
-                        name => 6,
-                       }
                       ]
           });
 
@@ -137,25 +131,25 @@ like ($solr->facets_found->{suchbegriffe}->[0]->{query_url},
   or diag $solr->facets_found->{suchbegriffe}->[0]->{query_url};
 
 $solr->rows(1000);
-$solr->search_from_url('/shirt/manufacturer/Pikeur');
+$solr->search_from_url('/shirt/manufacturer/piko');
 @skus = $solr->skus_found;
 is (scalar(@skus), $solr->num_found, "Skus reported and returned match");
 # print Dumper($solr);
 
-$solr->search_from_url('/words/shirt/fashion/manufacturer/Pikeur');
+$solr->search_from_url('/words/shirt/fashion/manufacturer/piko');
 
 ok (scalar($solr->skus_found), "Found some results");
 
 is_deeply($solr->terms_found, {
-                               reset => 'manufacturer/Pikeur',
+                               reset => 'manufacturer/piko',
                                terms => [
                                          {
                                           term => 'shirt',
-                                          url => 'words/fashion/manufacturer/Pikeur',
+                                          url => 'words/fashion/manufacturer/piko',
                                          },
                                          {
                                           term => 'fashion',
-                                          url => 'words/shirt/manufacturer/Pikeur',
+                                          url => 'words/shirt/manufacturer/piko',
                                          },
                                         ],
                               }, "struct ok");

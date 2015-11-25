@@ -18,6 +18,60 @@
    size: M
    color: rose
    inactive: 0
+
+-  sku: 1111301
+   title: shirt
+   category: shirts
+   manufacturer: piko
+   suchbegriffe: asdf
+   description: description of a shirt
+   comment: comment for a shirt
+   size: M
+   color: rose
+   inactive: 0
+-  sku: 1111302
+   title: shirt
+   category: shirts
+   manufacturer: piko
+   suchbegriffe: asdf
+   description: description of a shirt
+   comment: comment for a shirt
+   size: M
+   color: rose
+   inactive: 0
+-  sku: 1111303
+   title: shirt
+   category: shirts
+   manufacturer: piko
+   suchbegriffe: asdf
+   description: description of a shirt
+   comment: comment for a shirt
+   size: M
+   color: rose
+   inactive: 0
+-  sku: 1111304
+   title: shirt
+   category: shirts
+   manufacturer: piko
+   suchbegriffe: asdf
+   description: description of a shirt
+   comment: comment for a shirt
+   size: M
+   color: rose
+   inactive: 0
+-  sku: 1111305
+   title: shirt
+   category: shirts
+   manufacturer: piko
+   suchbegriffe: asdf
+   description: description of a shirt
+   comment: comment for a shirt
+   size: M
+   color: rose
+   inactive: 0
+
+
+
 -  sku: 1111400
    title: hat
    category: hats
