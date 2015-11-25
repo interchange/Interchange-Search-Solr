@@ -24,5 +24,13 @@ else {
 
 ok($solr->stop_words);
 ok($solr->stop_words->{the}, "stopwords found");
-ok (!$solr->_term_is_good('the'), "the is not a good term");
+
+foreach my $term (qw/the ours bb aa 1 c..b/) {
+    ok(!$solr->_term_is_good($term), "$term is not good");
+}
+foreach my $term (qw/aaa bbb xlxl t.c.t/) {
+    ok($solr->_term_is_good($term), "$term is good");
+}
+
+
 done_testing;

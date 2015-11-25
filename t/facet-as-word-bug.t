@@ -11,14 +11,9 @@ use WebService::Solr::Query;
 my $solr;
 
 my @localfields = (qw/sku
-                      title
-                      comment_en comment_fr
-                      comment_nl comment_de
-                      comment_se comment_es
-                      description_en description_fr
-                      description_nl description_de
+                      title comment description
                       inactive
-                      description_se description_es/);
+                     /);
 
 if ($ENV{SOLR_TEST_URL}) {
     $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_TEST_URL},
@@ -60,9 +55,9 @@ foreach my $kw (qw/color size/) {
 
 $solr->search_from_url('/words/size/XL/color/banana');
 $solr->response->ok;
-is_deeply $solr->search_terms, [qw/size XL/], "words prefix skip size as keyword";
+is_deeply $solr->search_terms, [qw/size/], "words prefix skip size as keyword and xl is too short";
 is_deeply $solr->filters, { color => [qw/banana/] }, "color set the filter";
-is $solr->current_search_to_url, "words/size/XL/color/banana",
+is $solr->current_search_to_url, "words/size/color/banana",
   "url built correctly";
 
 $solr->search_from_url('/size/XL/color/banana');
@@ -76,11 +71,11 @@ is $solr->current_search_to_url, "color/banana/size/XL", "url built correctly";
 
 $solr->search_from_url('/words/size/XL/color/banana/size');
 ok $solr->response->ok, "response ok";
-is_deeply $solr->search_terms, [qw/size XL/], "words prefix skip size as keyword";
+is_deeply $solr->search_terms, [qw/size/], "words prefix skip size as keyword and xl is too short";
 is_deeply $solr->filters, { color => [qw/banana
                                          size/] },
   "color set the filter";
-is $solr->current_search_to_url, "words/size/XL/color/banana/size",
+is $solr->current_search_to_url, "words/size/color/banana/size",
   "url built correctly";
 
 $solr->response->ok;

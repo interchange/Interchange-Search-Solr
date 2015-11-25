@@ -1,5 +1,5 @@
 -  sku: 1111200
-   title: shirt
+   title: shirt colors
    category: shirts
    manufacturer: manu
    suchbegriffe: asdf
@@ -118,7 +118,7 @@
    manufacturer: manu
    suchbegriffe: asdf
    description: description of a hat
-   comment: comment for a hat
+   comment: comment for a hat color and size
    size: XL
    color: blue
    inactive: 0

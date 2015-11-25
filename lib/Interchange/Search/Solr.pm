@@ -12,7 +12,7 @@ use Encode qw//;
 use XML::LibXML;
 use Interchange::Search::Solr::Response;
 use Lingua::StopWords;
-use Types::Standard qw/ArrayRef HashRef/;
+use Types::Standard qw/ArrayRef HashRef Int/;
 use namespace::clean;
 
 =head1 NAME
@@ -213,9 +213,11 @@ sub _build_stop_words {
 
 =head2 min_chars
 
-Minimum characters for filtering the search terms.
+Minimum characters for filtering the search terms. Default to 3.
 
 =cut
+
+has min_chars => (is => 'ro', isa => Int, default => sub { 3 });
 
 
 has search_fields => (is => 'ro',
@@ -1105,9 +1107,16 @@ sub _term_is_good {
         if ($self->stop_words->{lc($term)}) {
             return 0;
         }
-        else {
-            return 1;
+        if ($self->min_chars > 1) {
+            my $re = "\\w.*" x $self->min_chars;
+            if ($term =~ m/$re/) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
         }
+        return 1;
     }
     return 0;
 }
