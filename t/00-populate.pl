@@ -3,23 +3,19 @@
 use strict;
 use warnings;
 use Interchange::Search::Solr;
+use Interchange::Search::Solr::UpdateIndex;
+use File::Spec;
+use YAML qw/LoadFile/;
+use Data::Dumper;
 use Test::More;
 
-my @localfields = (qw/sku
-                      title
-                      comment_en comment_fr
-                      comment_nl comment_de
-                      comment_se comment_es
-                      description_en description_fr
-                      description_nl description_de
-                      description_se description_es/);
-
-my $solr;
-if ($ENV{SOLR_URL}) {
+my ($solr, $ui);
+if (my $solr_url = $ENV{SOLR_URL}) {
+    diag "Using solr instance at $solr_url";
     $solr = Interchange::Search::Solr->new(
-                                           solr_url => $ENV{SOLR_URL},
-                                           search_fields => \@localfields,
+                                           solr_url => $solr_url,
                                           );
+    $ui = Interchange::Search::Solr::UpdateIndex->new(url => $solr_url);
 }
 else {
     my $doc = <<'DOC';
@@ -64,4 +60,17 @@ DOC
     diag $doc;
     plan skip_all => "Please set environment variable SOLR_URL.";
 }
+
+my $data = LoadFile(File::Spec->catfile(qw/examples data.yaml/));
+# print Dumper($data);
+ok $solr;
+$solr->maintainer_update('clear');
+my $res = $solr->maintainer_update(add => $data);
+if ($res->solr_status) {
+    die "Failed to update Solr index for " . Dumper($data)
+      . $res->{content}->{error}->{msg} . "\n";
+}
+
+done_testing;
+
 

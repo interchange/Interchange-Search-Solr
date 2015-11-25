@@ -15,12 +15,9 @@ my $solr;
 
 my @localfields = (qw/sku
                       title
-                      comment_en comment_fr
-                      comment_nl comment_de
-                      comment_se comment_es
-                      description_en description_fr
-                      description_nl description_de
-                      description_se description_es/);
+                      comment
+                      description
+                     /);
 
 if ($ENV{SOLR_URL}) {
     $solr = Interchange::Search::Solr->new(
@@ -35,30 +32,35 @@ else {
 ok($solr, "Object created");
 ok($solr->solr_object, "Internal Solr instance ok");
 $solr->start(3);
-$solr->rows(6);
+$solr->rows(2);
 $solr->search();
 is ($solr->search_string, '*', "Empty search returns everything");
 ok ($solr->num_found, "Found results") and diag "Results: " . $solr->num_found;
-$solr->search("the boot");
+# {
+#     my @results = @{$solr->results};
+#     print Dumper(\@results);
+# }
+# 
+$solr->search("desc hat");
 ok ($solr->response->ok);
 
-like $solr->search_string, qr/\(the\* AND boot\*\)/,
+like $solr->search_string, qr/\(desc\* AND hat\*\)/,
   "Search string interpolated" . $solr->search_string;
 
-is_deeply ($solr->search_terms, [qw/the boot/], "Search terms saved");
+is_deeply ($solr->search_terms, [qw/desc hat/], "Search terms saved");
 
 diag "Calling response->docs\n";
 ok ($solr->response->ok, "Rersponse is ok");
 my @results = @{$solr->results};
 # print Dumper(\@results);
-is (scalar(@results), 6, "Found 6 results");
+is (scalar(@results), 2, "Found 2 results");
 
 $solr->rows(3);
-$solr->search("boot");
+$solr->search("hat");
 my @skus = $solr->skus_found;
 
 diag $solr->num_found;
-ok ($solr->num_found > 10, "Found more than 10 results");
+ok ($solr->num_found > 6, "Found more than 10 results");
 ok ($solr->has_more, "Has more products");
 # print Dumper(\@skus);
 
@@ -69,12 +71,12 @@ foreach my $sku (@skus) {
 }
 
 $solr->start($solr->num_found);
-$solr->search("boot");
+$solr->search("hat");
 ok (!$solr->has_more, "No more products starting at " .  $solr->start);
 
 $solr->start('pippo');
 $solr->rows('ciccia');
-$solr->search("boot");
+$solr->search("hat");
 ok $solr->num_found, "Found results with messed up start/rows";
 ok $solr->has_more, "And has more";
 
