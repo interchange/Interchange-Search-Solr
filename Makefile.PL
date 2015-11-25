@@ -18,6 +18,9 @@ WriteMakefile(
     },
     PREREQ_PM => {
                   'WebService::Solr' => 0,
+                  'Lingua::StopWords' => 0.09, # also on debian
+                  'Type::Tiny' => 1,
+                  'namespace::clean' => 0,
                   'Moo' => 0,
                   'XML::LibXML' => 0,
                  },

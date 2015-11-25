@@ -25,7 +25,7 @@ else {
 
 $solr->search_from_url('/the/boot/i/like/suchbegriffe/xxxxx/yyyy/manufacturer/piko/page/2');
 
-is_deeply($solr->search_terms, [qw/the boot i like/], "Search terms picked up ok");
+is_deeply($solr->search_terms, [qw/boot like/], "Search terms picked up ok");
 is($solr->start, 10, "Start computed correctly"), # we have to start at 0
 is($solr->page, 2, "Page picked up");
 is_deeply($solr->filters, {
@@ -39,7 +39,7 @@ is (scalar($solr->skus_found), 0, "No sku found with this query");
 $solr->facets([qw/manufacturer suchbegriffe/]);
 
 is $solr->current_search_to_url,
-  'words/the/boot/i/like/manufacturer/piko/suchbegriffe/xxxxx/yyyy/page/2',
+  'words/boot/like/manufacturer/piko/suchbegriffe/xxxxx/yyyy/page/2',
   "Url resolves correctly";
 
 

@@ -12,6 +12,7 @@ t/00-populate.t
 t/basic.t
 t/breadcrumbs.t
 t/complex-query.t
+t/empty-search.t
 t/encoding.t
 t/facet-as-word-bug.t
 t/filters.t

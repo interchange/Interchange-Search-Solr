@@ -11,6 +11,9 @@ use POSIX qw//;
 use Encode qw//;
 use XML::LibXML;
 use Interchange::Search::Solr::Response;
+use Lingua::StopWords;
+use Types::Standard qw/ArrayRef HashRef/;
+use namespace::clean;
 
 =head1 NAME
 
@@ -183,6 +186,38 @@ wildcard is prepended as well, querying for *1234* instead).
 has wild_matching => (is => 'ro',
                       default => sub { 0 });
 
+=head2 stop_words_langs
+
+The languages for which we should build the stop word list. It
+defaults to:
+
+ [ 'en' ]
+
+=cut
+
+has stop_words => (is => 'lazy', isa => HashRef);
+
+has stop_words_langs => (is => 'ro', default => sub { [qw/en/ ] }, isa => ArrayRef);
+
+sub _build_stop_words {
+    my $self = shift;
+    my @stopwords;
+    foreach my $lang (@{ $self->stop_words_langs }) {
+        if (my $stops = Lingua::StopWords::getStopWords($lang, 'UTF-8')) {
+            push @stopwords, keys %$stops;
+        }
+    }
+    my %out = map { $_ => 1 } @stopwords;
+    return \%out;
+}
+
+=head2 min_chars
+
+Minimum characters for filtering the search terms.
+
+=cut
+
+
 has search_fields => (is => 'ro',
                       default => sub {
                           return [
@@ -333,7 +368,7 @@ sub search {
     }
     my @terms;
     if ($string) {
-        @terms = grep { $_ } split(/\s+/, $string);
+        @terms = grep { $self->_term_is_good($_) } split(/\s+/, $string);
     }
     $self->search_terms(\@terms);
     $self->search_structure($structure);
@@ -343,7 +378,7 @@ sub search {
 sub _do_search {
     my $self = shift;
 
-    my @terms = grep { /\w/ } @{ $self->search_terms };
+    my @terms = grep { $self->_term_is_good($_) } @{ $self->search_terms };
 
     my $query = '';
     my $wild_match = '';
@@ -661,7 +696,7 @@ sub add_terms_to_url {
     die "Bad usage" unless defined $url;
     $self->_parse_url($url);
     return $url unless @other_terms;
-    my @additional_terms = grep { $_ } @other_terms;
+    my @additional_terms = grep { $self->_term_is_good($_) } @other_terms;
     my @terms = @{ $self->search_terms };
     push @terms, @additional_terms;
     $self->search_terms(\@terms);
@@ -734,7 +769,8 @@ sub _parse_url {
             push @terms, $chunk;
         }
     }
-    $self->search_terms(\@terms);
+    # filter the terms
+    $self->search_terms([ grep { $self->_term_is_good($_) } @terms ]);
     $self->filters(\%filters);
 }
 
@@ -1061,6 +1097,19 @@ sub remove_word_links {
         }
     }
     return @out;
+}
+
+sub _term_is_good {
+    my ($self, $term) = @_;
+    if ($term && $term =~ /\w/) {
+        if ($self->stop_words->{lc($term)}) {
+            return 0;
+        }
+        else {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 

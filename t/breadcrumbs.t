@@ -10,13 +10,8 @@ use Test::More;
 my $solr;
 
 my @localfields = (qw/sku
-                      title
-                      comment_en comment_fr
-                      comment_nl comment_de
-                      comment_se comment_es
-                      description_en description_fr
-                      description_nl description_de
-                      description_se description_es/);
+                      title comment description
+                     /);
 
 if ($ENV{SOLR_TEST_URL}) {
     $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_TEST_URL},
@@ -28,7 +23,7 @@ else {
     plan skip_all => "Please set environment variable SOLR_TEST_URL.";
 }
 
-my $testurl = 'words/the/shiny/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur/page/2';
+my $testurl = 'words/creepy/shiny/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur/page/2';
 
 $solr->search_from_url($testurl);
 
@@ -37,29 +32,29 @@ is ($solr->current_search_to_url, $testurl);
 is_deeply([$solr->breadcrumbs],
           [
            {
-            uri => 'words/the',
-            label => 'the',
+            uri => 'words/creepy',
+            label => 'creepy',
            },
            {
-            uri => 'words/the/shiny',
+            uri => 'words/creepy/shiny',
             label => 'shiny',
            },
            {
-            uri => 'words/the/shiny/boot',
+            uri => 'words/creepy/shiny/boot',
             label => 'boot',
            },
            {
-            uri => 'words/the/shiny/boot/suchbegriffe/xxxxx',
+            uri => 'words/creepy/shiny/boot/suchbegriffe/xxxxx',
             facet => 'suchbegriffe',
             label => 'xxxxx',
            },
            {
-            uri => 'words/the/shiny/boot/suchbegriffe/xxxxx/yyyy',
+            uri => 'words/creepy/shiny/boot/suchbegriffe/xxxxx/yyyy',
             facet => 'suchbegriffe',
             label => 'yyyy',
            },
            {
-            uri => 'words/the/shiny/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
+            uri => 'words/creepy/shiny/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
             facet => 'manufacturer',
             label => 'pikeur',
            }
@@ -69,14 +64,14 @@ is_deeply([$solr->remove_word_links],
           [
            {
             uri => 'words/shiny/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
-            label => 'the',
+            label => 'creepy',
            },
            {
-            uri => 'words/the/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
+            uri => 'words/creepy/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
             label => 'shiny',
            },
            {
-            uri => 'words/the/shiny/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
+            uri => 'words/creepy/shiny/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
             label => 'boot',
            },
           ], "Remove words links ok");
