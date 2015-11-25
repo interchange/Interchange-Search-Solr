@@ -3,7 +3,7 @@
    category: shirts
    manufacturer: manu
    suchbegriffe: asdf
-   description: description of a shirt
+   description: description of a shirt Ärmelbündchen
    comment: comment for a shirt
    size: XL
    color: blue
@@ -33,7 +33,7 @@
    category: boots
    manufacturer: piko
    suchbegriffe: asdf
-   description: description of a boot
+   description: description of a boot Ärmelbündchen
    comment: comment for a boot
    size: XL
    color: rose
@@ -234,7 +234,7 @@
    manufacturer: manu
    suchbegriffe: asdf
    description: description of a hat
-   comment: comment for a hat
+   comment: comment for a hat Ärmelbündchen
    size: XL
    color: blue
    inactive: 1

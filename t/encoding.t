@@ -13,12 +13,9 @@ my $solr_enc = 'iso-8859-1';
 
 my @localfields = (qw/sku
                       title
-                      comment_en comment_fr
-                      comment_nl comment_de
-                      comment_se comment_es
-                      description_en description_fr
-                      description_nl description_de
-                      description_se description_es/);
+                      comment
+                      description
+                     /);
 
 if ($ENV{SOLR_URL}) {
     $solr_url = $ENV{SOLR_URL};
