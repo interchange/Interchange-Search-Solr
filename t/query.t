@@ -11,12 +11,8 @@ my $solr;
 
 my @localfields = (qw/sku
                       title
-                      comment_en comment_fr
-                      comment_nl comment_de
-                      comment_se comment_es
-                      description_en description_fr
-                      description_nl description_de
-                      description_se description_es/);
+                      comment description
+                     /);
 
 if ($ENV{SOLR_URL}) {
     $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL},
