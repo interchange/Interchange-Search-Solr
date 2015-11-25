@@ -10,15 +10,7 @@ use WebService::Solr::Query;
 
 my $solr;
 
-my @localfields = (qw/sku
-                      title
-                      comment_en comment_fr
-                      comment_nl comment_de
-                      comment_se comment_es
-                      description_en description_fr
-                      description_nl description_de
-                      inactive
-                      description_se description_es/);
+my @localfields = (qw/sku title comment description inactive/);
 
 if ($ENV{SOLR_URL}) {
     $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL},
@@ -48,12 +40,12 @@ ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found inactive products " . $solr->num_found;
 scan_field($solr->results, inactive => 1);
 
-$res = $solr->search({ comment_en => 'knitted hat', inactive => 0 });
+$res = $solr->search({ comment => 'knitted hat', inactive => 0 });
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
 scan_field($solr->results, inactive => 0);
 
-$res = $solr->search({ comment_en => 'knitted hat', inactive => 1 });
+$res = $solr->search({ comment => 'knitted hat', inactive => 1 });
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
 scan_field($solr->results, inactive => 1);

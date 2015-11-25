@@ -293,3 +293,25 @@
    color: blue
    inactive: 1
 
+-  sku: 1211201
+   title: knitted hat
+   category: hats
+   manufacturer: manu
+   suchbegriffe: asdf
+   description: description of a hat
+   comment: comment for a hat Ärmelbündchen und knitted hat
+   size: XL
+   color: blue
+   inactive: 0
+
+-  sku: 1211202
+   title: knitted hat
+   category: hats
+   manufacturer: manu
+   suchbegriffe: asdf
+   description: description of a hat
+   comment: comment for a hat Ärmelbündchen und knitted hat
+   size: XL
+   color: blue
+   inactive: 1
+
