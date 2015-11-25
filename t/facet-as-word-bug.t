@@ -20,15 +20,15 @@ my @localfields = (qw/sku
                       inactive
                       description_se description_es/);
 
-if ($ENV{SOLR_URL}) {
-    $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL},
+if ($ENV{SOLR_TEST_URL}) {
+    $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_TEST_URL},
                                            search_fields => \@localfields,
                                            facets => [qw/color size/]
                                           );
     plan tests => 27;
 }
 else {
-    plan skip_all => "Please set environment variable SOLR_URL.";
+    plan skip_all => "Please set environment variable SOLR_TEST_URL.";
 }
 
 $solr->search_from_url('/words/colors');

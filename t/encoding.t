@@ -17,11 +17,11 @@ my @localfields = (qw/sku
                       description
                      /);
 
-if ($ENV{SOLR_URL}) {
-    $solr_url = $ENV{SOLR_URL};
+if ($ENV{SOLR_TEST_URL}) {
+    $solr_url = $ENV{SOLR_TEST_URL};
 }
 else {
-    plan skip_all => "Please set environment variable SOLR_URL.";
+    plan skip_all => "Please set environment variable SOLR_TEST_URL.";
 }
 
 my $solr = Interchange::Search::Solr->new(solr_url => $solr_url,

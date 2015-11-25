@@ -18,14 +18,14 @@ my @localfields = (qw/sku
                       description_nl description_de
                       description_se description_es/);
 
-if ($ENV{SOLR_URL}) {
-    $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_URL},
+if ($ENV{SOLR_TEST_URL}) {
+    $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_TEST_URL},
                                            search_fields => \@localfields,
                                           );
     plan tests => 4;
 }
 else {
-    plan skip_all => "Please set environment variable SOLR_URL.";
+    plan skip_all => "Please set environment variable SOLR_TEST_URL.";
 }
 
 my $testurl = 'words/the/shiny/boot/suchbegriffe/xxxxx/yyyy/manufacturer/pikeur/page/2';
@@ -83,3 +83,5 @@ is_deeply([$solr->remove_word_links],
 
 is $solr->clear_words_link, 'suchbegriffe/xxxxx/yyyy/manufacturer/pikeur',
   "Clear words link ok";
+
+print Dumper($solr->filters, $solr->search_terms);

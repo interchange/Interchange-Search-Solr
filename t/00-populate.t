@@ -10,7 +10,7 @@ use Data::Dumper;
 use Test::More;
 
 my ($solr, $ui);
-if (my $solr_url = $ENV{SOLR_URL}) {
+if (my $solr_url = $ENV{SOLR_TEST_URL}) {
     diag "Using solr instance at $solr_url";
     $solr = Interchange::Search::Solr->new(
                                            solr_url => $solr_url,
@@ -50,15 +50,15 @@ $HOME/solr/solr/icsearch/conf/schema.xml
  cp examples/schema.xml $HOME/solr/solr/icsearch/conf/schema.xml
  solr restart
 
-And export SOLR_URL with the path:
+And export SOLR_TEST_URL with the path:
 
- export SOLR_URL=http://localhost:9999/solr/icsearch
+ export SOLR_TEST_URL=http://localhost:9999/solr/icsearch
 
 Beware that 9999 is now exposed to the internet, so firewall that.
 
 DOC
     diag $doc;
-    plan skip_all => "Please set environment variable SOLR_URL.";
+    plan skip_all => "Please set environment variable SOLR_TEST_URL.";
 }
 
 my $data = LoadFile(File::Spec->catfile(qw/examples data.yaml/));
