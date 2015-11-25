@@ -36,13 +36,16 @@ $solr->rows(2);
 $solr->search();
 is ($solr->search_string, '*', "Empty search returns everything");
 ok ($solr->num_found, "Found results") and diag "Results: " . $solr->num_found;
-# {
-#     my @results = @{$solr->results};
-#     print Dumper(\@results);
-# }
+ {
+     my @results = @{$solr->results};
+     print Dumper(\@results);
+ }
 # 
 $solr->search("desc hat");
 ok ($solr->response->ok);
+ok (!$solr->response->error, "No error found");
+ok ($solr->response->isa('Interchange::Search::Solr::Response'),
+    "response is Interchange::Search::Solr::Response");
 
 like $solr->search_string, qr/\(desc\* AND hat\*\)/,
   "Search string interpolated" . $solr->search_string;

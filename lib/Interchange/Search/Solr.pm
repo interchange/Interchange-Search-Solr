@@ -10,6 +10,7 @@ use Data::Dumper;
 use POSIX qw//;
 use Encode qw//;
 use XML::LibXML;
+use Interchange::Search::Solr::Response;
 
 =head1 NAME
 
@@ -404,8 +405,9 @@ sub execute_query {
     $self->_set_search_string($querystring);
     my %params = $self->construct_params;
     my $res = $self->solr_object->search($querystring, \%params);
-    $self->_set_response($res);
-    return $res;
+    my $our_res = Interchange::Search::Solr::Response->new($res->raw_response);
+    $self->_set_response($our_res);
+    return $our_res;
 }
 
 =head2 construct_params
