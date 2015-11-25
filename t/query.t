@@ -74,6 +74,7 @@ like $links[0], qr{words/shirt/.+/.+}, "Found the filter link $links[0]"
   or diag Dumper($solr->response);
 
 
+$solr->permit_empty_search(1);
 $solr->search_from_url('/');
 
 @links = map { $_->[0]->{query_url} }  values %{ $solr->facets_found };

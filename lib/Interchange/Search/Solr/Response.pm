@@ -13,13 +13,6 @@ Interchange::Search::Solr::Response
 
 L<WebService::Solr::Response> subclass for error handling.
 
-=head2 SYNOPSIS
-
- my $res = Interchange::Search::Solr::Response->new(error => 'empty_search');
- $res->ok;
- $res->error;
- $res->docs;
-
 =head2 METHODS/ACCESSORS
 
 In addition to all the L<WebService::Solr::Response> methods this
@@ -35,7 +28,7 @@ Error code is C<empty_search>.
 
 =cut
 
-has error => (is => 'ro');
+has error => (is => 'rw');
 
 sub is_empty_search {
     my $self = shift;

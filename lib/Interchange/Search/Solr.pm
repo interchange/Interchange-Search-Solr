@@ -12,8 +12,9 @@ use Encode qw//;
 use XML::LibXML;
 use Interchange::Search::Solr::Response;
 use Lingua::StopWords;
-use Types::Standard qw/ArrayRef HashRef Int/;
+use Types::Standard qw/ArrayRef HashRef Int Bool/;
 use namespace::clean;
+use HTTP::Response;
 
 =head1 NAME
 
@@ -215,10 +216,17 @@ sub _build_stop_words {
 
 Minimum characters for filtering the search terms. Default to 3.
 
+=head2 permit_empty_search
+
+By default, empty searches are not executed. You can permit them
+setting this accessor to 1. The module will reset it to 0 when the
+search is executed.
+
 =cut
 
 has min_chars => (is => 'ro', isa => Int, default => sub { 3 });
 
+has permit_empty_search => (is => 'rw', isa => Bool, default => sub { 0 });
 
 has search_fields => (is => 'ro',
                       default => sub {
@@ -249,7 +257,7 @@ has page => (is => 'rw',
              default => sub { 1 });
 
 has filters => (is => 'rw',
-                isa => sub { die "not an hashref" unless ref($_[0]) eq 'HASH' },
+                isa => HashRef,
                 default => sub { return {} },
                );
 
@@ -413,6 +421,19 @@ If no query is provided, a wildcard search is performed.
 
 =cut
 
+sub _search_is_empty {
+    my $self = shift;
+    my @terms = @{ $self->search_terms };
+    my %filters = %{ $self->filters };
+    my $structure = $self->search_structure;
+    if (@terms || %filters || $structure) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+
 sub execute_query {
     my ($self, $query) = @_;
     my $querystring = '*';
@@ -440,10 +461,21 @@ sub execute_query {
     }
     # save the debug info
     $self->_set_search_string($querystring);
-    my %params = $self->construct_params;
-    my $res = $self->solr_object->search($querystring, \%params);
-    my $our_res = Interchange::Search::Solr::Response->new($res->raw_response);
+
+    my $our_res;
+    unless ($self->permit_empty_search) {
+        if ($self->_search_is_empty) {
+            $our_res = Interchange::Search::Solr::Response->new(HTTP::Response->new(404));
+            $our_res->error('empty_search');
+        }
+    }
+    unless ($our_res) {
+        my %params = $self->construct_params;
+        my $res = $self->solr_object->search($querystring, \%params);
+        $our_res = Interchange::Search::Solr::Response->new($res->raw_response);
+    }
     $self->_set_response($our_res);
+    $self->permit_empty_search(0);
     return $our_res;
 }
 

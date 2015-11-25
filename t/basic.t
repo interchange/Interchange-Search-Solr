@@ -33,14 +33,19 @@ ok($solr, "Object created");
 ok($solr->solr_object, "Internal Solr instance ok");
 $solr->start(3);
 $solr->rows(2);
+$solr->permit_empty_search(1);
 $solr->search();
 is ($solr->search_string, '*', "Empty search returns everything");
+is ($solr->permit_empty_search, 0, "permit empty search reset");
 ok ($solr->num_found, "Found results") and diag "Results: " . $solr->num_found;
- {
-     my @results = @{$solr->results};
-     print Dumper(\@results);
- }
-# 
+
+my $res = $solr->search();
+is ($solr->search_string, '*', "Empty search string");
+is ($solr->permit_empty_search, 0, "permit empty search reset");
+ok (!$solr->num_found, "No results found") and diag "Results: " . $solr->num_found;
+ok ($res->is_empty_search);
+
+
 $solr->search("desc hat");
 ok ($solr->response->ok);
 ok (!$solr->response->error, "No error found");

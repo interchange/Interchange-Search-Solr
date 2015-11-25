@@ -58,6 +58,7 @@ $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_TEST_URL},
                                        global_conditions => { inactive => 0 },
                                       );
 
+$solr->permit_empty_search(1);
 $res = $solr->search('');
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
