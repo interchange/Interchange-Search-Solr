@@ -13,7 +13,7 @@ my $http_res = HTTP::Response->new(404);
 ok (blessed($http_res), "empty response is blessed");
 diag Dumper($http_res);
 
-my $res = Interchange::Search::Solr::Response->new();
+my $res = Interchange::Search::Solr::Response->new($http_res);
 
 ok ($res);
 
