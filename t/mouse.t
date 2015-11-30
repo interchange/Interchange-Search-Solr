@@ -22,4 +22,8 @@ my $res = Interchange::Search::Solr::Response->new($http_res);
 
 ok ($res);
 
+ok ($res->can('error'));
+ok $res->raw_response->code;
+
+
 done_testing;
