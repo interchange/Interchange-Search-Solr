@@ -929,9 +929,13 @@ The structure looks like this:
 
  {
    first => 'words/bla' || undef,
+   first_page => 1 || undef,
    last  => 'words/bla/page/5' || undef,
-   next => 'words/bla/page/3' || undef,
-   previous => 'words/bla/page/5' || undef,
+   last_page => 5 || undef,
+   next => 'words/bla/page/5' || undef,
+   next_page => 5 || undef
+   previous => 'words/bla/page/3' || undef,
+   previous_page => 3 || undef,
    pages => [
              {
               name => 1,
@@ -990,9 +994,11 @@ sub paginator {
         }
         elsif ($position == 1) {
             $pager{next} = $url;
+            $pager{next_page} = $count;
         }
         elsif ($position == -1) {
             $pager{previous} = $url;
+            $pager{previous_page} = $count;
         }
         push @{$pager{items}}, $item;
     }
@@ -1000,10 +1006,12 @@ sub paginator {
         $pager{last} = $self->url_builder($self->search_terms,
                                           $self->filters,
                                           $total_pages);
+        $pager{last_page} = $total_pages;
     }
     if ($page != 1) {
         $pager{first} = $self->url_builder($self->search_terms,
                                            $self->filters, 1);
+        $pager{first_page} = 1;
     }
     $pager{total_pages} = $total_pages;
     return \%pager;

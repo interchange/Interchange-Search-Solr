@@ -96,6 +96,8 @@ like $lastpage, qr{manufacturer/piko/page/\d+}, "Found last page";
 is_deeply(\%paginator,
           {
            next => 'manufacturer/piko/page/2',
+           next_page => 2,
+           last_page => 4,
            'items' => [
                        {
                         'current' => 1,
