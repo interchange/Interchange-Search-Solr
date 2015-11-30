@@ -999,6 +999,7 @@ sub paginator {
         $pager{first} = $self->url_builder($self->search_terms,
                                            $self->filters, 1);
     }
+    $pager{total_pages} = $total_pages;
     return \%pager;
 }
 

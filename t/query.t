@@ -114,7 +114,8 @@ is_deeply(\%paginator,
                         'url' => 'manufacturer/piko/page/4',
                         name => 4,
                        },
-                      ]
+                      ],
+           total_pages => 4,
           });
 
 
