@@ -934,22 +934,28 @@ The structure looks like this:
    previous => 'words/bla/page/5' || undef,
    pages => [
              {
+              name => 1,
               url => 'words/bla/page/1',
              },
              {
+              name => 2,
               url => 'words/bla/page/2',
              },
              {
+              name => 3,
               url => 'words/bla/page/3',
              },
              {
+              name => 4,
               url => 'words/bla/page/4',
               current => 1,
              },
              {
+              name => 5,
               url => 'words/bla/page/5',
              },
             ]
+   total_pages => 5
  }
 
 =cut
