@@ -22,11 +22,11 @@ Interchange::Search::Solr -- Solr query encapsulation
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 DESCRIPTION
 
@@ -194,6 +194,9 @@ defaults to:
 
  [ 'en' ]
 
+New in 0.10. To revert to the old behaviour (no filtering of
+stopwords), pass an empty arrayref.
+
 =cut
 
 has stop_words => (is => 'lazy', isa => HashRef);
@@ -215,6 +218,8 @@ sub _build_stop_words {
 =head2 min_chars
 
 Minimum characters for filtering the search terms. Default to 3.
+
+New in 0.10. To revert to the old behaviour, set it to 0.
 
 =head2 permit_empty_search
 
