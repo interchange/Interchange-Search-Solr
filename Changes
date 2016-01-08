@@ -1,5 +1,11 @@
 Revision history for Interchange-Search-Solr
 
+0.11 Fri Jan  8 09:02:04 2016 CET
+
+     [BUG FIXES]
+
+     * Fix broken MANIFEST.SKIP (Stefan Hornburg/Racke).
+
 0.10 Thu Jan  7 10:11:14 2016 CET
 
      All changes done by Marco Pessotto.
