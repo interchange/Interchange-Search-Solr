@@ -7,7 +7,7 @@ WriteMakefile(
     AUTHOR           => q{Marco Pessotto <melmothx@gmail.com>},
     VERSION_FROM     => 'lib/Interchange/Search/Solr.pm',
     ABSTRACT_FROM    => 'lib/Interchange/Search/Solr.pm',
-    LICENSE          => 'Artistic_2_0',
+    LICENSE          => 'artistic_2',
     PL_FILES         => {},
     EXE_FILES        => ['bin/solr_update'],
     CONFIGURE_REQUIRES => {
