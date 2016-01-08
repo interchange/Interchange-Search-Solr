@@ -1,13 +1,14 @@
-# Top-level filter (only include the following...)
-^(?!(?:script|examples|lib|inc|t|xt|maint)/|(?:(?:Makefile|Build)\.PL|README|MANIFEST|Changes|META\.(?:yml|json))$)
+# Avoid version control files
+^\.git\/
+^.gitignore$
 
-# Avoid version control files.
-\bRCS\b
-\bCVS\b
-,v$
-\B\.svn\b
-\b_darcs\b
-# (.git only in top-level, hence it's blocked above)
+# Skip distribution files
+^.*\.tar.gz$
+
+# Skip automatically generated files
+MYMETA.*
+^.*blib
+^Makefile$
 
 # Avoid temp and backup files.
 ~$
@@ -17,13 +18,6 @@
 \..*?\.sw[po]$
 \#$
 \b\.#
-
-# avoid OS X finder files
-\.DS_Store$
-
-# ditto for Windows
-\bdesktop\.ini$
-\b[Tt]humbs\.db$
 
 # Avoid patch remnants
 \.orig$
