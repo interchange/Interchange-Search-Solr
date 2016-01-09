@@ -1,5 +1,13 @@
 Revision history for Interchange-Search-Solr
 
+0.12
+
+     [BUG FIXES]
+
+     * Add build prerequisite on YAML (Stefan Hornburg / Racke)
+     * Fix typo in the LICENSE name in Makefile.PL script
+       (Mohammad S Anwar).
+
 0.11 Fri Jan  8 09:02:04 2016 CET
 
      [BUG FIXES]
