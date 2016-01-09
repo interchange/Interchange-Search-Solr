@@ -1215,6 +1215,7 @@ L<https://metacpan.org/pod/Interchange::Search::Solr>
 
 =head1 ACKNOWLEDGEMENTS
 
+Mohammad S Anwar (GH #14).
 
 =head1 LICENSE AND COPYRIGHT
 
