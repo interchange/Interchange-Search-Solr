@@ -17,3 +17,4 @@ pod2htm*.tmp
 pm_to_blib
 Interchange-Search-Solr-*
 Interchange-Search-Solr-*.tar.gz
+*.bak
