@@ -11,6 +11,7 @@ use POSIX qw//;
 use Encode qw//;
 use XML::LibXML;
 use Interchange::Search::Solr::Response;
+use Interchange::Search::Solr::Builder;
 use Lingua::StopWords;
 use Types::Standard qw/ArrayRef HashRef Int Bool/;
 use namespace::clean;
@@ -333,6 +334,23 @@ sub _build_solr_object {
 #         push @args, \%options;
 #     }
     return WebService::Solr->new(@args);
+}
+
+=head2
+
+Creates Interchange::Search::Solr::UpdateIndex instance.
+
+=cut
+
+has builder_object => (is => 'lazy');
+
+sub _build_builder_object {
+    my ($self, $terms, $filters, $page) = @_;
+    return Interchange::Search::Solr::Builder->new(
+        terms   => $terms,
+        filters => $filters,
+        page    => $page
+    );
 }
 
 =head1 METHODS
@@ -739,7 +757,7 @@ sub add_terms_to_url {
     my @terms = @{ $self->search_terms };
     push @terms, @additional_terms;
     $self->search_terms(\@terms);
-    return $self->url_builder($self->search_terms,
+    return $self->builder_object->url_builder($self->search_terms,
                               $self->filters);
     
 }
@@ -840,35 +858,9 @@ sub current_search_to_url {
         $page = $self->page;
     }
 
-    return $self->url_builder($self->search_terms,
+    return $self->builder_object->url_builder($self->search_terms,
                               $self->filters,
                               $page);
-}
-
-=head2 url_builder(\@terms, \%filters, $page);
-
-Build a query url with the parameter passed
-
-=cut
-
-
-sub url_builder {
-    my ($self, $terms, $filters, $page) = @_;
-    my @fragments;
-    if (@$terms) {
-        push @fragments, 'words', @$terms;
-    }
-    if (%$filters) {
-        foreach my $facet (@{ $self->facets }) {
-            if (my $terms = $filters->{$facet}) {
-                push @fragments, $facet, @$terms;
-            }
-        }
-    }
-    if ($page and $page > 1) {
-        push @fragments, page => $page;
-    }
-    return join ('/', @fragments);
 }
 
 sub _build_facet_url {
@@ -902,7 +894,7 @@ sub _build_facet_url {
         $toggled_filters{$facet} = \@active if @active;
     }
     #    print Dumper(\@terms, \%toggled_filters);
-    my $url = $self->url_builder(\@terms, \%toggled_filters);
+    my $url = $self->builder_object->url_builder(\@terms, \%toggled_filters);
     return $url;
 }
 
@@ -986,7 +978,7 @@ sub paginator {
     my %pager = (items => []);
     for (my $count = $start; $count <= $end ; $count++) {
         # create the link
-        my $url = $self->url_builder($self->search_terms,
+        my $url = $self->builder_object->url_builder($self->search_terms,
                                      $self->filters,
                                      $count);
         my $item = {
@@ -1008,13 +1000,13 @@ sub paginator {
         push @{$pager{items}}, $item;
     }
     if ($page != $total_pages) {
-        $pager{last} = $self->url_builder($self->search_terms,
+        $pager{last} = $self->builder_object->url_builder($self->search_terms,
                                           $self->filters,
                                           $total_pages);
         $pager{last_page} = $total_pages;
     }
     if ($page != 1) {
-        $pager{first} = $self->url_builder($self->search_terms,
+        $pager{first} = $self->builder_object->url_builder($self->search_terms,
                                            $self->filters, 1);
         $pager{first_page} = 1;
     }
@@ -1059,14 +1051,14 @@ sub terms_found {
     my @terms = @{ $self->search_terms };
     return unless @terms;
     my %out = (
-               reset => $self->url_builder([], $self->filters),
+               reset => $self->builder_object->url_builder([], $self->filters),
                terms => [],
               );
     foreach my $term (@terms) {
         my @toggled = grep { $_ ne $term } @terms;
         push @{ $out{terms} }, {
                                 term => $term,
-                                url => $self->url_builder(\@toggled,
+                                url => $self->builder_object->url_builder(\@toggled,
                                                           $self->filters),
                                };
     }
