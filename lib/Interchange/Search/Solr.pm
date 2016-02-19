@@ -342,9 +342,7 @@ Creates Interchange::Search::Solr::UpdateIndex instance.
 
 =cut
 
-has builder_object => (is => 'lazy');
-
-sub _build_builder_object {
+sub builder_object {
     my ($self, $terms, $filters, $page) = @_;
     return Interchange::Search::Solr::Builder->new(
         terms   => $terms,
@@ -757,8 +755,11 @@ sub add_terms_to_url {
     my @terms = @{ $self->search_terms };
     push @terms, @additional_terms;
     $self->search_terms(\@terms);
-    return $self->builder_object->url_builder($self->search_terms,
-                              $self->filters);
+    my $builder =  $self->builder_object(
+        $self->search_terms,
+        $self->filters
+    );
+    return $builder->url_builder;
     
 }
 
@@ -858,9 +859,11 @@ sub current_search_to_url {
         $page = $self->page;
     }
 
-    return $self->builder_object->url_builder($self->search_terms,
+    my $builder = $self->builder_object($self->search_terms,
                               $self->filters,
                               $page);
+
+    return $builder->url_builder;
 }
 
 sub _build_facet_url {
@@ -894,8 +897,8 @@ sub _build_facet_url {
         $toggled_filters{$facet} = \@active if @active;
     }
     #    print Dumper(\@terms, \%toggled_filters);
-    my $url = $self->builder_object->url_builder(\@terms, \%toggled_filters);
-    return $url;
+    my $builder = $self->builder_object(\@terms, \%toggled_filters);
+    return $builder->url_builder;
 }
 
 sub _filter_is_active {
@@ -978,9 +981,9 @@ sub paginator {
     my %pager = (items => []);
     for (my $count = $start; $count <= $end ; $count++) {
         # create the link
-        my $url = $self->builder_object->url_builder($self->search_terms,
+        my $url = $self->builder_object($self->search_terms,
                                      $self->filters,
-                                     $count);
+                                     $count)->url_builder;
         my $item = {
                     url => $url,
                     name => $count,
@@ -1000,14 +1003,14 @@ sub paginator {
         push @{$pager{items}}, $item;
     }
     if ($page != $total_pages) {
-        $pager{last} = $self->builder_object->url_builder($self->search_terms,
+        $pager{last} = $self->builder_object($self->search_terms,
                                           $self->filters,
-                                          $total_pages);
+                                          $total_pages)->url_builder;
         $pager{last_page} = $total_pages;
     }
     if ($page != 1) {
-        $pager{first} = $self->builder_object->url_builder($self->search_terms,
-                                           $self->filters, 1);
+        $pager{first} = $self->builder_object($self->search_terms,
+                                           $self->filters, 1)->url_builder;
         $pager{first_page} = 1;
     }
     $pager{total_pages} = $total_pages;
@@ -1051,15 +1054,15 @@ sub terms_found {
     my @terms = @{ $self->search_terms };
     return unless @terms;
     my %out = (
-               reset => $self->builder_object->url_builder([], $self->filters),
+               reset => $self->builder_object([], $self->filters)->url_builder,
                terms => [],
               );
     foreach my $term (@terms) {
         my @toggled = grep { $_ ne $term } @terms;
         push @{ $out{terms} }, {
                                 term => $term,
-                                url => $self->builder_object->url_builder(\@toggled,
-                                                          $self->filters),
+                                url => $self->builder_object(\@toggled,
+                                                          $self->filters)->url_builder,
                                };
     }
     return \%out;
