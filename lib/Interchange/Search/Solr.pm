@@ -979,11 +979,12 @@ sub paginator {
     my $end   = ($page + $page_scope < $total_pages) ? ($page + $page_scope) : $total_pages;
 
     my %pager = (items => []);
+    my $builder = $self->builder_object($self->search_terms, $self->filters);
+
     for (my $count = $start; $count <= $end ; $count++) {
         # create the link
-        my $url = $self->builder_object($self->search_terms,
-                                     $self->filters,
-                                     $count)->url_builder;
+        $builder->page($count);
+        my $url = $builder->url_builder;
         my $item = {
                     url => $url,
                     name => $count,
@@ -1003,14 +1004,13 @@ sub paginator {
         push @{$pager{items}}, $item;
     }
     if ($page != $total_pages) {
-        $pager{last} = $self->builder_object($self->search_terms,
-                                          $self->filters,
-                                          $total_pages)->url_builder;
+        $builder->page($total_pages);
+        $pager{last} = $builder->url_builder;
         $pager{last_page} = $total_pages;
     }
     if ($page != 1) {
-        $pager{first} = $self->builder_object($self->search_terms,
-                                           $self->filters, 1)->url_builder;
+        $builder->page(1);
+        $pager{first} = $builder->url_builder;
         $pager{first_page} = 1;
     }
     $pager{total_pages} = $total_pages;
@@ -1057,12 +1057,14 @@ sub terms_found {
                reset => $self->builder_object([], $self->filters)->url_builder,
                terms => [],
               );
+    my @toggled;
+    my $builder = $builder_object(\@toggled, $self->filters);
     foreach my $term (@terms) {
-        my @toggled = grep { $_ ne $term } @terms;
+        @toggled = grep { $_ ne $term } @terms;
+        $builder->terms(\@toggled);
         push @{ $out{terms} }, {
                                 term => $term,
-                                url => $self->builder_object(\@toggled,
-                                                          $self->filters)->url_builder,
+                                url  => $builder->url_builder,
                                };
     }
     return \%out;
