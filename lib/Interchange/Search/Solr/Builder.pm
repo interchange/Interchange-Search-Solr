@@ -63,10 +63,12 @@ A number of page and must be positive number (>= 1)
 
 has page => (
     is  => 'rw',
-    isa => sub { 
-        die "$_[0] is not integer" if $_[0] !~ /^\d+$/;
-        die "must be positive number" unless $_[0] > 1
-    },
+    isa => sub {
+        if (defined $_[0]){ 
+            die "$_[0] is not integer" if $_[0] !~ /^\d+$/;
+            die "must be positive number" unless $_[0] > 1
+        }
+    }
 );
 
 =head1 METHODS
