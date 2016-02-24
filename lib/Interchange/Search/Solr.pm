@@ -347,6 +347,7 @@ sub builder_object {
     return Interchange::Search::Solr::Builder->new(
         terms   => $terms,
         filters => $filters,
+        facets  => $self->facets,
         page    => $page
     );
 }
