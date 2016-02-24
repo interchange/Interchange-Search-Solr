@@ -11,6 +11,7 @@ use POSIX qw//;
 use Encode qw//;
 use XML::LibXML;
 use Interchange::Search::Solr::Response;
+use Interchange::Search::Solr::Builder;
 use Lingua::StopWords;
 use Types::Standard qw/ArrayRef HashRef Int Bool/;
 use namespace::clean;
@@ -333,6 +334,22 @@ sub _build_solr_object {
 #         push @args, \%options;
 #     }
     return WebService::Solr->new(@args);
+}
+
+=head2 builder_object(\@terms, \%filters, $page)
+
+Creates Interchange::Search::Solr::Builder instance.
+
+=cut
+
+sub builder_object {
+    my ($self, $terms, $filters, $page) = @_;
+    return Interchange::Search::Solr::Builder->new(
+        terms   => $terms,
+        filters => $filters,
+        facets  => $self->facets,
+        page    => $page
+    );
 }
 
 =head1 METHODS
@@ -739,8 +756,11 @@ sub add_terms_to_url {
     my @terms = @{ $self->search_terms };
     push @terms, @additional_terms;
     $self->search_terms(\@terms);
-    return $self->url_builder($self->search_terms,
-                              $self->filters);
+    my $builder =  $self->builder_object(
+        $self->search_terms,
+        $self->filters
+    );
+    return $builder->url_builder;
     
 }
 
@@ -840,35 +860,11 @@ sub current_search_to_url {
         $page = $self->page;
     }
 
-    return $self->url_builder($self->search_terms,
+    my $builder = $self->builder_object($self->search_terms,
                               $self->filters,
                               $page);
-}
 
-=head2 url_builder(\@terms, \%filters, $page);
-
-Build a query url with the parameter passed
-
-=cut
-
-
-sub url_builder {
-    my ($self, $terms, $filters, $page) = @_;
-    my @fragments;
-    if (@$terms) {
-        push @fragments, 'words', @$terms;
-    }
-    if (%$filters) {
-        foreach my $facet (@{ $self->facets }) {
-            if (my $terms = $filters->{$facet}) {
-                push @fragments, $facet, @$terms;
-            }
-        }
-    }
-    if ($page and $page > 1) {
-        push @fragments, page => $page;
-    }
-    return join ('/', @fragments);
+    return $builder->url_builder;
 }
 
 sub _build_facet_url {
@@ -902,8 +898,8 @@ sub _build_facet_url {
         $toggled_filters{$facet} = \@active if @active;
     }
     #    print Dumper(\@terms, \%toggled_filters);
-    my $url = $self->url_builder(\@terms, \%toggled_filters);
-    return $url;
+    my $builder = $self->builder_object(\@terms, \%toggled_filters);
+    return $builder->url_builder;
 }
 
 sub _filter_is_active {
@@ -984,11 +980,12 @@ sub paginator {
     my $end   = ($page + $page_scope < $total_pages) ? ($page + $page_scope) : $total_pages;
 
     my %pager = (items => []);
+    my $builder = $self->builder_object($self->search_terms, $self->filters);
+
     for (my $count = $start; $count <= $end ; $count++) {
         # create the link
-        my $url = $self->url_builder($self->search_terms,
-                                     $self->filters,
-                                     $count);
+        $builder->page($count);
+        my $url = $builder->url_builder;
         my $item = {
                     url => $url,
                     name => $count,
@@ -1008,14 +1005,13 @@ sub paginator {
         push @{$pager{items}}, $item;
     }
     if ($page != $total_pages) {
-        $pager{last} = $self->url_builder($self->search_terms,
-                                          $self->filters,
-                                          $total_pages);
+        $builder->page($total_pages);
+        $pager{last} = $builder->url_builder;
         $pager{last_page} = $total_pages;
     }
     if ($page != 1) {
-        $pager{first} = $self->url_builder($self->search_terms,
-                                           $self->filters, 1);
+        $builder->page(1);
+        $pager{first} = $builder->url_builder;
         $pager{first_page} = 1;
     }
     $pager{total_pages} = $total_pages;
@@ -1059,15 +1055,17 @@ sub terms_found {
     my @terms = @{ $self->search_terms };
     return unless @terms;
     my %out = (
-               reset => $self->url_builder([], $self->filters),
+               reset => $self->builder_object([], $self->filters)->url_builder,
                terms => [],
               );
+    my @toggled;
+    my $builder = $self->builder_object(\@toggled, $self->filters);
     foreach my $term (@terms) {
-        my @toggled = grep { $_ ne $term } @terms;
+        @toggled = grep { $_ ne $term } @terms;
+        $builder->terms(\@toggled);
         push @{ $out{terms} }, {
                                 term => $term,
-                                url => $self->url_builder(\@toggled,
-                                                          $self->filters),
+                                url  => $builder->url_builder,
                                };
     }
     return \%out;

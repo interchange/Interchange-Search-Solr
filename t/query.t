@@ -50,13 +50,6 @@ ok (scalar(@skus), "Found some results with /boot");
 $solr->search('boot');
 is_deeply([ $solr->skus_found] , \@skus, "same result");
 
-is ($solr->url_builder([qw/pinco pallino/],
-                       {
-                        manufacturer => [qw/piko/]
-                       }, 3),
-    'words/pinco/pallino/manufacturer/piko/page/3',
-    "Url builder works");
-
 $solr->rows(3);
 $solr->search_from_url('/shirt/manufacturer/piko');
 @skus = $solr->skus_found;

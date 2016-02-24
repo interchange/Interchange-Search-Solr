@@ -5,6 +5,7 @@ examples/schema.xml
 lib/Interchange/Search/Solr.pm
 lib/Interchange/Search/Solr/Response.pm
 lib/Interchange/Search/Solr/UpdateIndex.pm
+lib/Interchange/Search/Solr/Builder.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
@@ -13,6 +14,7 @@ t/00-load.t
 t/00-populate.t
 t/basic.t
 t/breadcrumbs.t
+t/builder.t
 t/complex-query.t
 t/empty-search.t
 t/encoding.t
