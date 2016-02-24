@@ -1058,7 +1058,7 @@ sub terms_found {
                terms => [],
               );
     my @toggled;
-    my $builder = $builder_object(\@toggled, $self->filters);
+    my $builder = $self->builder_object(\@toggled, $self->filters);
     foreach my $term (@terms) {
         @toggled = grep { $_ ne $term } @terms;
         $builder->terms(\@toggled);
