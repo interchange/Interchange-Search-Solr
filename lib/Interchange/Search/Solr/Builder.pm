@@ -76,7 +76,7 @@ has page => (
 In addition to all the L<WebService::Solr::Response> methods this
 class have the following methods:
 
-=head2 url_builder(\@terms, \%filters, $page);
+=head2 url_builder;
 
 Build a query url with the parameter passed
 

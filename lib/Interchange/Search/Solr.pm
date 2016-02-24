@@ -336,9 +336,9 @@ sub _build_solr_object {
     return WebService::Solr->new(@args);
 }
 
-=head2
+=head2 builder_object(\@terms, \%filters, $page)
 
-Creates Interchange::Search::Solr::UpdateIndex instance.
+Creates Interchange::Search::Solr::Builder instance.
 
 =cut
 
