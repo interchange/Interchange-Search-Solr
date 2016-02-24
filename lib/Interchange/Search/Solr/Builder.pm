@@ -66,7 +66,7 @@ has page => (
     isa => sub {
         if (defined $_[0]){ 
             die "$_[0] is not integer" if $_[0] !~ /^\d+$/;
-            die "must be positive number" unless $_[0] > 1
+            die "must be positive number" unless $_[0] >= 1
         }
     }
 );
