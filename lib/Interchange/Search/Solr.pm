@@ -495,6 +495,10 @@ sub execute_query {
         my %params = $self->construct_params;
         my $res = $self->solr_object->search($querystring, \%params);
         $our_res = Interchange::Search::Solr::Response->new($res->raw_response);
+
+	if ($our_res->solr_status != 0) {
+	    die "Solr failure: ".$our_res->raw_response->message;
+	}
     }
     $self->_set_response($our_res);
     $self->permit_empty_search(0);

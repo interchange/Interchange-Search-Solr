@@ -6,6 +6,7 @@ use warnings;
 use Interchange::Search::Solr;
 use Data::Dumper;
 use Test::More;
+use Test::Exception;
 use WebService::Solr::Query;
 
 my $solr;
@@ -20,7 +21,7 @@ if ($ENV{SOLR_TEST_URL}) {
                                            search_fields => \@localfields,
                                            facets => [qw/color size/]
                                           );
-    plan tests => 27;
+    plan tests => 28;
 }
 else {
     plan skip_all => "Please set environment variable SOLR_TEST_URL.";
@@ -80,5 +81,6 @@ is $solr->current_search_to_url, "words/size/color/banana/size",
 
 $solr->response->ok;
 
-
+$solr->facets(['nevairbe']);
+throws_ok { $solr->search_from_url('/nevairbe/test') } qr/Solr failure: Bad Request/, "get exception with bad request";
 
