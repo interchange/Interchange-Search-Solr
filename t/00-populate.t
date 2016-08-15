@@ -8,6 +8,7 @@ use File::Spec;
 use YAML qw/LoadFile/;
 use Data::Dumper;
 use Test::More;
+use DateTime;
 
 my ($solr, $ui);
 if (my $solr_url = $ENV{SOLR_TEST_URL}) {
@@ -62,6 +63,13 @@ DOC
 }
 
 my $data = LoadFile(File::Spec->catfile(qw/examples data.yaml/));
+my $days = 0;
+foreach my $doc (@$data) {
+    my $now = DateTime->now;
+    $doc->{created_date} = $now . 'Z';
+    $now->add(days => ++$days);
+    $doc->{updated_date} = $now . 'Z';
+}
 # print Dumper($data);
 ok $solr;
 $solr->maintainer_update('clear');

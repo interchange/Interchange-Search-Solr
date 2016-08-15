@@ -54,6 +54,8 @@
         <field name="size"   multiValued="true" type="string" indexed="true" stored="true" />
         <field name="color"  multiValued="true" type="string" indexed="true" stored="true" />
         <field name="inactive" type="boolean" indexed="true" stored="true" />
+        <field name="created_date" type="date" indexed="true" stored="true" />
+        <field name="updated_date" type="date" indexed="true" stored="true" />
 		<field name="_version_" type="long" indexed="true" stored="true" /> 
 	 </fields>
 

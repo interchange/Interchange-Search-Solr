@@ -16,6 +16,7 @@ WriteMakefile(
     BUILD_REQUIRES => {
         'Test::More' => 0,
         'YAML' => 0,
+        'DateTime' => 0,
     },
     PREREQ_PM => {
                   'WebService::Solr' => 0,
