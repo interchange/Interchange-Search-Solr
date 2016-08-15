@@ -165,9 +165,17 @@ L<Webservice::Solr::Query> for stringification.
 The field used to sort the result (optional and defaults to score, as
 per Solr doc).
 
+You can set it to a scalar with a field name or instead you can use
+the L<SQL::Abstract> syntax (all the cases documented there are
+supported). E.g.
+
+ $solr->sorting([{ -asc => 'created_date' }, {-desc => [qw/updated_date sku/] }]);
+
+If you pass a reference, the C<sorting_direction> setting is ignored.
+
 =head2 sorting_direction
 
-The direction used by the sorting, when C<sorting> is specified.
+The direction used by the sorting, when C<sorting> is specified and is a plain scalar.
 Default to 'desc'.
 
 =cut
@@ -495,7 +503,7 @@ sub execute_query {
     }
     unless ($our_res) {
         my %params = $self->construct_params;
-        print Dumper(\%params) if DEBUG;
+        # print Dumper(\%params) if DEBUG;
         my $res = $self->solr_object->search($querystring, \%params);
         $our_res = Interchange::Search::Solr::Response->new($res->raw_response);
 
@@ -545,7 +553,14 @@ sub construct_params {
         }
     }
     if (my $sort_by = $self->sorting) {
-        $params{sort} = join(' ', $sort_by, $self->sorting_direction);
+        my $sort_by_struct;
+        if (ref($sort_by)) {
+            $sort_by_struct = $sort_by;
+        }
+        else {
+            $sort_by_struct = { '-' . $self->sorting_direction => $sort_by };
+        }
+        $params{sort} = join(', ', $self->_build_sort_field($sort_by_struct));
     }
     if (my $fl = $self->return_fields) {
         $params{fl} = join(',', @$fl);

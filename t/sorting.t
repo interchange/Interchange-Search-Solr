@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Interchange::Search::Solr;
-use Test::More;
+use Test::More tests => 23;
 use Data::Dumper;
 
 my $solr;
@@ -73,4 +73,20 @@ while (@tests) {
     is join(', ', @out), $expected, Dumper($input) . "is $expected";
 }
 
-done_testing;
+# now test the real stuff
+
+{
+    $solr->permit_empty_search(1);
+    $solr->sorting([{ -desc => 'created_date' }, {-asc => [qw/updated_date sku/] }]);
+    eval { $solr->search() };
+    my $res = $solr->results->[0];
+    is $res->{sku}, $older->{sku};
+}
+
+{
+    $solr->permit_empty_search(1);
+    $solr->sorting([{ -asc => 'created_date' }, {-desc => [qw/updated_date sku/] }]);
+    eval { $solr->search() };
+    my $res = $solr->results->[0];
+    is $res->{sku}, $latest->{sku};
+}
