@@ -36,13 +36,17 @@ ok($solr, "Object created");
 $solr->permit_empty_search(1);
 $solr->sorting('updated_date');
 $solr->search();
-
 my $latest = $solr->results->[0];
+my %params = $solr->construct_params;
+is $params{sort}, 'updated_date desc', 'sorting desc param ok';
 $solr->permit_empty_search(1);
 $solr->sorting_direction('asc');
 $solr->search();
+%params = $solr->construct_params;
+is $params{sort}, 'updated_date asc', 'sorting asc param ok';
 my $older = $solr->results->[0];
 diag Dumper($latest, $older);
+# these are known values from data.yaml and 00-populate.pl
 is $latest->{sku}, '1211202', "Sorting desc ok";
 is $older->{sku}, '1111200', "Sorting asc ok";
 done_testing;
