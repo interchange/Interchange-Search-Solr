@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Interchange::Search::Solr;
-use Test::More tests => 23;
+use Test::More;
 use Data::Dumper;
 
 my $solr;
@@ -26,6 +26,7 @@ if ($ENV{SOLR_TEST_URL}) {
                                            solr_url => $ENV{SOLR_TEST_URL},
                                            search_fields => \@localfields,
                                           );
+    plan tests => 23;
 }
 else {
     plan skip_all => "Please set environment variable SOLR_TEST_URL.";
