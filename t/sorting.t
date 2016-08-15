@@ -45,8 +45,32 @@ $solr->search();
 %params = $solr->construct_params;
 is $params{sort}, 'updated_date asc', 'sorting asc param ok';
 my $older = $solr->results->[0];
-diag Dumper($latest, $older);
+# diag Dumper($latest, $older);
 # these are known values from data.yaml and 00-populate.pl
 is $latest->{sku}, '1211202', "Sorting desc ok";
 is $older->{sku}, '1111200', "Sorting asc ok";
+
+# from sqla doc
+
+my @tests = (\'colA desc',                'colA desc',
+             'colA',                      'colA',
+             [qw/colA colB/],             'colA, colB',
+             {-asc  => 'colA'},           'colA asc',
+             {-desc => 'colB'},           'colB desc',
+             ['colA', {-asc => 'colB'}],  'colA, colB asc',
+             { -asc => [qw/colA colB/] }, 'colA asc, colB asc',
+             [
+              { -asc => 'colA' },
+              { -desc => [qw/colB/] },
+              { -asc => [qw/colC colD/] }
+             ],                            'colA asc, colB desc, colC asc, colD asc');
+
+while (@tests) {
+    my $input = shift @tests;
+    my $expected = shift @tests;
+    my @out = eval { $solr->_build_sort_field($input) };
+    ok !$@, "No error" or diag $@;
+    is join(', ', @out), $expected, Dumper($input) . "is $expected";
+}
+
 done_testing;

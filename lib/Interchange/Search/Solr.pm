@@ -16,6 +16,8 @@ use Lingua::StopWords;
 use Types::Standard qw/ArrayRef HashRef Int Bool/;
 use namespace::clean;
 use HTTP::Response;
+use Scalar::Util;
+use constant { DEBUG => 0 };
 
 =head1 NAME
 
@@ -493,6 +495,7 @@ sub execute_query {
     }
     unless ($our_res) {
         my %params = $self->construct_params;
+        print Dumper(\%params) if DEBUG;
         my $res = $self->solr_object->search($querystring, \%params);
         $our_res = Interchange::Search::Solr::Response->new($res->raw_response);
 
@@ -1173,6 +1176,73 @@ sub _term_is_good {
         return 1;
     }
     return 0;
+}
+
+# stolen from SQL::Abstract
+
+sub _build_sort_field {
+    my ($self, $arg) = @_;
+    return $self->_SWITCH_refkind($arg,
+                                  {
+                                   ARRAYREF => sub {
+                                       map { $self->_build_sort_field($_) } @$arg;
+                                   },
+                                   SCALAR => sub {
+                                       return "$arg";
+                                   },
+                                   UNDEF => sub {
+                                       return;
+                                   },
+                                   SCALARREF => sub {
+                                       $$arg;
+                                   },
+                                   HASHREF => sub {
+                                       my ($key, $val, @rest) = %$arg;
+                                       return () unless $key;
+                                       if ( @rest or not $key =~ /^-(desc|asc)/i ) {
+                                           die "hash passed to sorting  must have exactly ".
+                                             "one key (-desc or -asc)";
+                                       }
+                                       my $direction = $1;
+                                       my @ret;
+                                       for my $c ($self->_build_sort_field($val)) {
+                                           my $query;
+                                           $self->_SWITCH_refkind ($c,
+                                                                   {
+                                                                    SCALAR => sub {
+                                                                        $query = $c;
+                                                                    },
+                                                                   });
+                                           $query = $query . ' ' . lc($direction);
+                                           push @ret, $query;
+                                       }
+                                       return @ret;
+                                   },
+                                  });
+}
+
+
+sub _refkind {
+    my ($self, $data) = @_;
+    return 'UNDEF' unless defined $data;
+    # blessed objects are treated like scalars
+    my $ref = (Scalar::Util::blessed $data) ? '' : ref $data;
+    return 'SCALAR' unless $ref;
+    my $n_steps = 1;
+    while ($ref eq 'REF') {
+        $data = $$data;
+        $ref = (Scalar::Util::blessed $data) ? '' : ref $data;
+        $n_steps++ if $ref;
+    }
+    return ($ref||'SCALAR') . ('REF' x $n_steps);
+}
+
+sub _SWITCH_refkind {
+    my ($self, $data, $dispatch_table) = @_;
+    my $type = $self->_refkind($data);
+    my $coderef = $dispatch_table->{$self->_refkind($data)};
+    die "Unsupported structure $type" unless $coderef;
+    $coderef->();
 }
 
 
