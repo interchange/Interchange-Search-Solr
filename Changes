@@ -1,5 +1,15 @@
 Revision history for Interchange-Search-Solr
 
+0.13 Tue Aug 16 08:44:24 2016 CEST
+
+     [ENHANCEMENTS]
+
+     * Implement multiple sorting directives based on SQL::Abstract syntax
+       (Marco Pessotto).
+     * Die when status is not OK and return corresponding message
+       (Pattawan Kaewduangdee, GH #8).
+     * Add builder class for uri's (Pattawan Kaewduangdee, GH #6).
+
 0.12 Sat Jan  9 08:45:59 2016 CET
 
      [BUG FIXES]

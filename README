@@ -4,7 +4,7 @@ NAME
 
 VERSION
 
-    Version 0.12
+    Version 0.13
 
 DESCRIPTION
 
@@ -135,10 +135,18 @@ ACCESSORS
     The field used to sort the result (optional and defaults to score, as
     per Solr doc).
 
+    You can set it to a scalar with a field name or instead you can use the
+    SQL::Abstract syntax (all the cases documented there are supported).
+    E.g.
+
+     $solr->sorting([{ -asc => 'created_date' }, {-desc => [qw/updated_date sku/] }]);
+
+    If you pass a reference, the sorting_direction setting is ignored.
+
  sorting_direction
 
-    The direction used by the sorting, when sorting is specified. Default
-    to 'desc'.
+    The direction used by the sorting, when sorting is specified and is a
+    plain scalar. Default to 'desc'.
 
  wild_matching
 
@@ -173,6 +181,10 @@ INTERNAL ACCESSORS
  solr_object
 
     The WebService::Solr instance.
+
+ builder_object(\@terms, \%filters, $page)
+
+    Creates Interchange::Search::Solr::Builder instance.
 
 METHODS
 
@@ -239,10 +251,6 @@ METHODS
  current_search_to_url
 
     Return the url for the current search.
-
- url_builder(\@terms, \%filters, $page);
-
-    Build a query url with the parameter passed
 
  paginator
 
