@@ -66,9 +66,9 @@ my $data = LoadFile(File::Spec->catfile(qw/examples data.yaml/));
 my $days = 0;
 foreach my $doc (@$data) {
     my $now = DateTime->now;
-    $doc->{created_date} = $now . 'Z';
+    $doc->{created} = $now . 'Z';
     $now->add(days => ++$days);
-    $doc->{updated_date} = $now . 'Z';
+    $doc->{last_modified} = $now . 'Z';
 }
 # print Dumper($data);
 ok $solr;
