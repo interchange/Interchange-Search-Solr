@@ -10,7 +10,8 @@ use WebService::Solr::Query;
 
 my $solr;
 
-my @localfields = (qw/sku title comment description inactive/);
+my @localfields = (qw/sku name short_description description active/);
+my @facets = (qw/collection manufacturer/);
 
 if ($ENV{SOLR_TEST_URL}) {
     $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_TEST_URL},
@@ -22,65 +23,65 @@ else {
 }
 
 diag get_query({
-                 inactive => 0,
+                 active => 1,
                  foo => 'bar',
                 });
 
 diag get_query([
-                 { inactive => 0, },
+                 { active => 1, },
                  { foo => 'bar', },
                 ]);
 
-my $res = $solr->search({ inactive => 0 });
+my $res = $solr->search({ active => 1 });
 
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
-$res = $solr->search({ inactive => 1 });
+$res = $solr->search({ active => 0 });
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found inactive products " . $solr->num_found;
-scan_field($solr->results, inactive => 1);
+scan_field($solr->results, active => 0);
 
-$res = $solr->search({ comment => 'knitted hat', inactive => 0 });
+$res = $solr->search({ comment => 'knitted hat', active => 1 });
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
-scan_field($solr->results, inactive => 0);
+scan_field($solr->results, active => 1);
 
-$res = $solr->search({ comment => 'knitted hat', inactive => 1 });
+$res = $solr->search({ comment => 'knitted hat', active => 0 });
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
-scan_field($solr->results, inactive => 1);
+scan_field($solr->results, active => 0);
 
 
 # wildcard
 
 $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_TEST_URL},
                                        search_fields => \@localfields,
-                                       global_conditions => { inactive => 0 },
+                                       global_conditions => { active => 1 },
                                       );
 
 $solr->permit_empty_search(1);
 $res = $solr->search('');
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
-scan_field($solr->results, inactive => 0);
+scan_field($solr->results, active => 1);
 
 $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_TEST_URL},
                                        search_fields => \@localfields,
-                                       global_conditions => { inactive => 1 },
+                                       global_conditions => { active => 0 },
                                       );
 $res = $solr->search('hat und');
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
-scan_field($solr->results, inactive => 1);
+scan_field($solr->results, active => 0);
 
 $solr = Interchange::Search::Solr->new(solr_url => $ENV{SOLR_TEST_URL},
                                        search_fields => \@localfields,
-                                       global_conditions => { inactive => 0 },
+                                       global_conditions => { active => 1 },
                                       );
 $res = $solr->search('hat und');
 ok($res->ok, $solr->search_string);
 ok $solr->num_found, "found " . $solr->num_found;
-scan_field($solr->results, inactive => 0);
+scan_field($solr->results, active => 1);
 
 
 
