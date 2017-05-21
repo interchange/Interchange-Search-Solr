@@ -529,7 +529,9 @@ sub construct_params {
                  );
 
 
-    if (my $facet_field = $self->facets) {
+    my $facet_field = $self->facets;
+
+    if (@$facet_field) {
         $params{facet} = 'true';
         $params{'facet.field'} = $facet_field;
         $params{'facet.mincount'} = 1;
