@@ -22,16 +22,6 @@ else {
     plan skip_all => "Please set environment variable SOLR_TEST_URL.";
 }
 
-diag get_query({
-                 active => 1,
-                 foo => 'bar',
-                });
-
-diag get_query([
-                 { active => 1, },
-                 { foo => 'bar', },
-                ]);
-
 my $res = $solr->search({ active => 1 });
 
 ok($res->ok, $solr->search_string);
