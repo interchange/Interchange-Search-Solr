@@ -82,4 +82,4 @@ is_deeply([$solr->remove_word_links],
 is $solr->clear_words_link, 'collection/xxxxx/yyyy/manufacturer/pikeur',
   "Clear words link ok";
 
-print Dumper($solr->filters, $solr->search_terms);
+# print Dumper($solr->filters, $solr->search_terms);
