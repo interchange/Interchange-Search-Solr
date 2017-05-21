@@ -87,9 +87,7 @@ An arrayref of indexed fields to return. All by default.
 =head2 facets
 
 A string or an arrayref with the fields which will generate a facet.
-Defaults to
-
- [qw/suchbegriffe manufacturer/]
+Defaults have been removed in version 0.2.
 
 =head2 start
 
@@ -257,7 +255,7 @@ has search_fields => (is => 'ro',
 has facets => (is => 'rw',
                isa => sub { die "not an arrayref" unless ref($_[0]) eq 'ARRAY' },
                default => sub {
-                   return [qw/suchbegriffe manufacturer/];
+                   return [];
                });
 
 has rows => (is => 'rw',
