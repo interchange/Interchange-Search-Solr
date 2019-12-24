@@ -38,6 +38,28 @@ sub is_empty_search {
     return 0;
 }
 
+=head3 exception_messsage
+
+Checks the response for a Solr exception (e.g undefined field foobar).
+If found, it returns the exception message. Otherwise it returns
+the generic HTTP response message.
+
+=cut
+
+sub exception_message {
+    my $self = shift;
+    my $http_response = $self->raw_response;
+
+    if ($http_response->code == 400) {
+        # look at deserialized JSON
+        my $content = $self->content;
+
+        if (exists $content->{error}->{msg}) {
+            return $content->{error}->{msg};
+        }
+    }
+
+    return $http_response->message;
+}
 
 1;
-
