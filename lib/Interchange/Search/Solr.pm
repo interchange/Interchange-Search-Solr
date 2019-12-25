@@ -667,6 +667,23 @@ sub add {
     return $our_res;
 }
 
+=head2 delete $data
+
+Deletes documents by queries in $data.
+
+=cut
+
+sub delete {
+    my ($self, $data) = @_;
+    my ($res, $our_res, $xml);
+
+    $xml = $self->_build_xml_del_op($data);
+    $res = $self->solr_object->_send_update($xml);
+    $our_res = Interchange::Search::Solr::Response->new($res->raw_response);
+
+    return $our_res;
+}
+
 =head2 commit
 
 Commits recently indexed content. This is necessary to make these changes visible
@@ -701,9 +718,7 @@ sub maintainer_update {
         $res = $self->add($data);
     }
     elsif ($mode eq 'clear') {
-        $xml = '<delete><query>*:*</query></delete>';
-        $wss_res = $self->solr_object->_send_update($xml);
-        $res = Interchange::Search::Solr::Response->new($wss_res->raw_response);
+        $res = $self->delete(['*:*']);
     }
     elsif ($mode eq 'full') {
         @query = ('dataimport', { command => 'full-import' });
@@ -728,7 +743,7 @@ sub maintainer_update {
     return $res;
 }
 
-# builds XML for add maintainer option
+# builds XML for add index handler
 
 sub _build_xml_add_op {
     my ($self, $input) = @_;
@@ -767,6 +782,31 @@ sub _build_xml_add_op {
             }
         }
     }
+    return $doc->firstChild->toString;
+}
+
+# builds XML for delete index handler
+
+sub _build_xml_del_op {
+    my ($self, $input) = @_;
+    my $doc = XML::LibXML::Document->new;
+    my $el_del = $doc->createElement('delete');
+    my $list;
+    $doc->addChild($el_del);
+
+    if (ref($input) eq 'ARRAY') {
+        $list = $input;
+    }
+    else {
+        die "Bad usage: input should be an arrayref";
+    }
+
+    foreach my $query (@$list) {
+        my $el_q = $doc->createElement('query');
+        $el_q->appendText($query);
+        $el_del->addChild($el_q);
+    }
+
     return $doc->firstChild->toString;
 }
 
