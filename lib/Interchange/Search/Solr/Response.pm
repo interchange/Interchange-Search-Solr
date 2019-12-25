@@ -86,4 +86,17 @@ sub exception_message {
     return $http_response->message;
 }
 
+=head3 as_string
+
+Returns the string representation of Solr's HTTP response.
+
+=cut
+
+sub as_string {
+    my $self = shift;
+    my $http_response = $self->raw_response;
+
+    return $http_response->as_string;
+}
+
 1;
