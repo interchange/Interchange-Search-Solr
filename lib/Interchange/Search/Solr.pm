@@ -48,6 +48,20 @@ Perhaps a little code snippet.
     $solr->search('shirts');
     $results = $solr->results;
 
+=head2 INDEX HANDLERS
+
+    # Clear the index
+    $solr->delete( ['*:*'] );
+
+    # Add a document
+    $solr->add( [
+        { sku => 'foo', title => 'My Foo' },
+        { sku => 'bar', title => 'My Bar' },
+    ] )
+
+    # Commit (only needed if autocommit is disabled)
+    $solr->commit;
+
 =head1 ACCESSORS
 
 =head2 solr_url
