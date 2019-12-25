@@ -647,6 +647,26 @@ sub has_more {
     }
 }
 
+=head2 add $data
+
+Adds the documents in $data to the index. $data is a reference to an array
+of hash references, e.g.:
+
+    [ { sku => 'foo', title => 'My Foo' }, { sku => 'bar', title => 'My Bar' } ]
+
+=cut
+
+sub add {
+    my ($self, $data) = @_;
+    my ($res, $our_res, $xml);
+
+    $xml = $self->_build_xml_add_op($data);
+    $res = $self->solr_object->_send_update($xml);
+    $our_res = Interchange::Search::Solr::Response->new($res->raw_response);
+
+    return $our_res;
+}
+
 =head2 commit
 
 Commits recently indexed content. This is necessary to make these changes visible
@@ -745,7 +765,7 @@ sub _build_xml_add_op {
             }
         }
     }
-    return $doc->toString;
+    return $doc->firstChild->toString;
 }
 
 =head2 reset_object
