@@ -695,24 +695,15 @@ object.
 sub maintainer_update {
     my ($self, $mode, $data) = @_;
     die "Missing argument" unless $mode;
-    my (@query, %params);
+    my (@query, %params, $xml, $wss_res, $res);
 
     if ($mode eq 'add') {
-        my $xml = $self->_build_xml_add_op($data);
-
-        %params = (
-            'stream.body' => $xml,
-            commit => 'true',
-        );
-
-        @query = ('update', \%params);
+        $res = $self->add($data);
     }
     elsif ($mode eq 'clear') {
-        %params = (
-                      'stream.body' => '<delete><query>*:*</query></delete>',
-                      commit        => 'true',
-                     );
-        @query = ('update', \%params);
+        $xml = '<delete><query>*:*</query></delete>';
+        $wss_res = $self->solr_object->_send_update($xml);
+        $res = Interchange::Search::Solr::Response->new($wss_res->raw_response);
     }
     elsif ($mode eq 'full') {
         @query = ('dataimport', { command => 'full-import' });
@@ -723,7 +714,18 @@ sub maintainer_update {
     else {
         die "Unrecognized mode $mode!";
     }
-    return $self->solr_object->generic_solr_request(@query);
+
+    unless ( $res ) {
+        $wss_res = $self->solr_object->generic_solr_request(@query);
+        $res = Interchange::Search::Solr::Response->new($wss_res->raw_response);
+    }
+
+    if ( $res->success ) {
+        # commit the changes
+        $res = $self->commit;
+    }
+
+    return $res;
 }
 
 # builds XML for add maintainer option
