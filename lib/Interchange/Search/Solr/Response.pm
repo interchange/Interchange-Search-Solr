@@ -59,7 +59,7 @@ sub success {
     return ! $status;
 }
 
-=head3 exception_messsage
+=head3 exception_message
 
 Checks the response for a Solr exception (e.g undefined field foobar).
 If found, it returns the exception message. Otherwise it returns
