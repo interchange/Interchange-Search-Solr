@@ -1370,9 +1370,11 @@ sub _SWITCH_refkind {
 }
 
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Marco Pessotto, C<< <melmothx at gmail.com> >>
+
+Stefan Hornburg (Racke), C<< <racke at linuxia.de> >>
 
 =head1 BUGS
 
