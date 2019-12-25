@@ -647,6 +647,22 @@ sub has_more {
     }
 }
 
+=head2 num_docs
+
+Returns the number of documents in the index.
+
+=cut
+
+sub num_docs {
+    my $self = shift;
+    my $response;
+
+    $self->permit_empty_search(1);
+    $response = $self->search('*:*');
+
+    return $self->num_found;
+}
+
 =head2 add $data
 
 Adds the documents in $data to the index. $data is a reference to an array
