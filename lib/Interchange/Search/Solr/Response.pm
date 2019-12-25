@@ -99,4 +99,24 @@ sub as_string {
     return $http_response->as_string;
 }
 
+=head1 AUTHORS
+
+
+Marco Pessotto, C<< <melmothx at gmail.com> >>
+
+Stefan Hornburg (Racke), C<< <racke at linuxia.de> >>
+
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2015-2019 Marco Pessotto, Stefan Hornburg (Racke).
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
+
+=cut
+
 1;
