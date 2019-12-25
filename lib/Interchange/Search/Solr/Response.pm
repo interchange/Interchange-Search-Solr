@@ -79,6 +79,9 @@ sub exception_message {
             return $content->{error}->{msg};
         }
     }
+    elsif ( $self->error ) {
+        return $self->error;
+    }
 
     return $http_response->message;
 }
