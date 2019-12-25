@@ -25,11 +25,11 @@ Interchange::Search::Solr -- Solr query encapsulation
 
 =head1 VERSION
 
-Version 0.14
+Version 0.20
 
 =cut
 
-our $VERSION = '0.14';
+our $VERSION = '0.20';
 
 =head1 DESCRIPTION
 
