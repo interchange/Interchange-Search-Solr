@@ -647,6 +647,23 @@ sub has_more {
     }
 }
 
+=head2 commit
+
+Commits recently indexed content. This is necessary to make these changes visible
+for searches unless autocommit is enabled in the configuration.
+
+=cut
+
+sub commit {
+    my $self = shift;
+    my ($res, $our_res);
+    my $xml = '<commit/>';
+
+    $res = $self->solr_object->_send_update($xml);
+    $our_res = Interchange::Search::Solr::Response->new($res->raw_response);
+
+    return $our_res;
+}
 
 =head2 maintainer_update($mode)
 
