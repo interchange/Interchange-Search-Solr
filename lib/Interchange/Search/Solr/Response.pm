@@ -38,6 +38,27 @@ sub is_empty_search {
     return 0;
 }
 
+=head3 success
+
+Returns 1 if the operation is successful, 0 otherwise.
+
+=cut
+
+sub success {
+    my $self = shift;
+    my $status = $self->solr_status;
+
+    unless ( defined $status ) {
+        my $http_response = $self->raw_response;
+
+        if ( $http_response->code != 200 ) {
+            $status = 1;
+        }
+    }
+
+    return ! $status;
+}
+
 =head3 exception_messsage
 
 Checks the response for a Solr exception (e.g undefined field foobar).
