@@ -21,7 +21,7 @@ if ($ENV{SOLR_TEST_URL}) {
                                                             }
                                                            ],
                                           );
-    plan tests => 8;
+    plan tests => 9;
 }
 else {
     plan skip_all => "Please set environment variable SOLR_TEST_URL.";
@@ -54,4 +54,7 @@ is_deeply(($solr->breadcrumbs)[1],
          );
 is $solr->reset_facet_url('price'), 'color/blue', "Reset facet url works for price";
 is $solr->reset_facet_url('color'), 'price/1/11', "Reset facet url works for color";
+
+ok $solr->search_from_url('price/asdf/asdf'), "No crash with invalid range";
+
 

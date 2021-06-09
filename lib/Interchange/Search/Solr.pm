@@ -127,6 +127,8 @@ See: L<https://solr.apache.org/guide/8_8/faceting.html#range-faceting>
 When searching, the field should have exactly two numeric arguments,
 e.g. "/price/1/100" (from 1 to 100).
 
+So far only integers are supported.
+
 =head2 start
 
 Start of pagination. Read-write.
@@ -625,8 +627,13 @@ sub construct_params {
                 foreach my $facet (@ranges) {
                     if (my $condition = $filters->{$facet}) {
                         my ($from, $to) = @$condition;
-                        my $range = "[${from} TO ${to}]";
-                        push @fq, "$facet:$range";
+                        if (defined $from and
+                            defined $to and
+                            $from =~ m/\A[1-9][0-9]*\z/ and
+                            $to   =~ m/\A[1-9][0-9]*\z/) {
+                            my $range = "[${from} TO ${to}]";
+                            push @fq, "$facet:$range";
+                        }
                     }
                 }
             }
@@ -945,6 +952,10 @@ Reset the leftovers of a possible previous search.
 
 Parse the url provided and do the search.
 
+=head2 safe_search_from_url($url)
+
+Same as above, but safe from crashes (wrapped in eval)
+
 =cut
 
 sub reset_object {
@@ -967,6 +978,14 @@ sub search_from_url {
     # at this point, all the parameters are set after the url parsing
     return $self->_do_search;
 }
+
+sub safe_search_from_url {
+    my ($self, $url) = @_;
+    my $res;
+    eval { $res = $self->search_from_url($url) };
+    return $res;
+}
+
 
 =head2 reset_facet_url($facet_name)
 
